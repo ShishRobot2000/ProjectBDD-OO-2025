@@ -13,7 +13,7 @@ public class Main {
         // 3. Creo un ToDo (senza specificare lo stato → di default NonCompletato)
         ToDo task1 = new ToDo(
                 "Inviare report",
-                "2025-04-20",
+                "2025-04-21",
                 "http://azienda.com/report",
                 null,
                 "Inviare il report al capo entro domani",
