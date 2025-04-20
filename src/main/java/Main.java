@@ -47,7 +47,14 @@ public class Main {
         System.out.println("Stato: " + task1.getStato()); // deve stampare NonCompletato
 
         System.out.println("Dettagli ToDo:");
-        System.out.println(task1);  // Questo usa toString()
+        System.out.println("Titolo: " + task1.getTitolo());
+        System.out.println("Scadenza: " + task1.getDataDiScadenza());
+        System.out.println("Descrizione: " + task1.getDescrizione());
+        System.out.println("Stato: " + task1.getStato());
+        System.out.println("Colore: " + task1.getColore());
+        System.out.println("Posizione: " + task1.getPosizione());
+        System.out.println("URL: " + task1.getUrl());
+        System.out.println("Immagine: " + (task1.getImmagine() != null ? task1.getImmagine() : "Nessuna"));
     }
 }
 

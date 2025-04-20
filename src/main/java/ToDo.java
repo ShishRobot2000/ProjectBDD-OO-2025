@@ -96,18 +96,5 @@ public class ToDo {
         this.utentiCondivisi = utentiCondivisi;
     }
 
-    @Override
-    public String toString() {
-        return "ToDo:\n" +
-                "Titolo: " + titolo + "\n" +
-                "Scadenza: " + dataDiScadenza + "\n" +
-                "Descrizione: " + descrizione + "\n" +
-                "Stato: " + stato + "\n" +
-                "Colore: " + colore + "\n" +
-                "Posizione: " + posizione + "\n" +
-                "URL: " + url + "\n" +
-                "Immagine: " + (immagine != null ? immagine : "Nessuna") + "\n";
-    }
-
 }
 
