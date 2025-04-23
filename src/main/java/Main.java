@@ -59,6 +59,7 @@ public class Main {
         System.out.println("ToDo: " + task1.getTitolo());
         System.out.println("Stato: " + task1.getStato()); // deve stampare NonCompletato
         System.out.println("-----------------------------");
+
         System.out.println("-----------------------------");
         System.out.println("Dettagli ToDo:");
         System.out.println("Titolo: " + task1.getTitolo());
@@ -70,6 +71,7 @@ public class Main {
         System.out.println("URL: " + task1.getUrl());
         System.out.println("Immagine: " + (task1.getImmagine() != null ? task1.getImmagine() : "Nessuna"));
         System.out.println("-----------------------------");
+
         System.out.println("-----------------------------");
         System.out.println("\nElenco ToDo nella bacheca:");
         for (ToDo t : lavoro.getToDoList())
