@@ -17,8 +17,8 @@ Il progetto supporta multiutenza, autenticazione con login/password univoche e g
 🔍 Codice disponibile su GitHub:  
 [https://github.com/ShishRobot2000/ProjectBDD-OO-2025](https://github.com/ShishRobot2000/ProjectBDD-OO-2025)
 
-📄 Documentazione ufficiale (PDF):  
-[Visualizza il PDF](BD-OO-Milano-Pellegrino-2025.pdf)
+📄 Documentazione ufficiale OO (PDF):  
+[Primo Homework](Java/Documentazione/BD-OO-Milano-Pellegrino-2025.pdf)
 
 ---
 
