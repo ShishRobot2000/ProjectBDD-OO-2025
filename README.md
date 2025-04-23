@@ -18,7 +18,7 @@ Il progetto supporta multiutenza, autenticazione con login/password univoche e g
 [https://github.com/ShishRobot2000/ProjectBDD-OO-2025](https://github.com/ShishRobot2000/ProjectBDD-OO-2025)
 
 📄 Documentazione ufficiale (PDF):  
-[Visualizza il PDF](BD-OO-Milano-Pellegriono-2025)
+[Visualizza il PDF](BD-OO-Milano-Pellegriono-2025.pdf)
 
 ---
 
