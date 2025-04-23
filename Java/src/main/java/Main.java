@@ -22,7 +22,7 @@ public class Main {
         );
 
         ToDo task2 = new ToDo(
-                "Prenotare sala riunioni",
+                "Prenotare sala riunioni e ordinare il caffè",
                 "2025-04-25",
                 "http://azienda.com/riunione",
                 null,
