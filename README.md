@@ -29,5 +29,5 @@ Il progetto supporta multiutenza, autenticazione con login/password univoche e g
 
 ---
 
-> Progetto sviluppato a fini accademici – Università degli Studi di [Napoli]  
+> Progetto sviluppato a fini accademici – Università degli Studi di Napoli  
 > Tutti i diritti riservati © 2025
