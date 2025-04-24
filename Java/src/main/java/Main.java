@@ -57,8 +57,11 @@ public class Main {
         System.out.println("Elenco ToDo nella bacheca:");
         for (ToDo t : lavoro.getToDoList()) {
             System.out.println("-----------------------------");
-            System.out.println(t); // usa il toString()
+            System.out.println("Titolo: " + t.getTitolo());
+            System.out.println("Data di Scadenza: " + t.getDataDiScadenza());
+            System.out.println("Stato: " + t.getStato());
         }
+
     }
 }
 
