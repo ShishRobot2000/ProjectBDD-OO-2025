@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class ToDo {
@@ -21,6 +22,7 @@ public class ToDo {
         this.colore = colore;
         this.posizione = posizione;
         this.stato = StatoToDo.NonCompletato; // valore di default
+        this.utentiCondivisi = new ArrayList<>(); // inizializzo lista vuota
     }
 
 
@@ -96,5 +98,35 @@ public class ToDo {
         this.utentiCondivisi = utentiCondivisi;
     }
 
+    @Override
+    public String toString() {
+        return "Titolo: " + titolo +
+                "\nData di Scadenza: " + dataDiScadenza +
+                "\nURL: " + (url != null ? url : "Nessun link") +
+                "\nImmagine: " + (immagine != null ? immagine : "Nessuna") +
+                "\nDescrizione: " + (descrizione != null ? descrizione : "Nessuna descrizione") +
+                "\nColore: " + (colore != null ? colore : "Nessun colore") +
+                "\nPosizione: " + (posizione != null ? posizione : "Nessuna posizione") +
+                "\nStato: " + stato +
+                "\nUtenti Condivisi: " + (utentiCondivisi != null && !utentiCondivisi.isEmpty()
+                ? utentiCondivisi.stream().map(Utente::getUsername).toList()
+                : "Nessuno");
+    }
+
+    public void condividiCon(Utente utente) {
+        if (this.utentiCondivisi == null) {
+            this.utentiCondivisi = new ArrayList<>();
+        }
+        if (!this.utentiCondivisi.contains(utente)) {
+            this.utentiCondivisi.add(utente);
+        }
+
+        if (utente.getToDoCondivisi() == null) {
+            utente.setToDoCondivisi(new ArrayList<>());
+        }
+        if (!utente.getToDoCondivisi().contains(this)) {
+            utente.getToDoCondivisi().add(this);
+        }
+    }
 }
 

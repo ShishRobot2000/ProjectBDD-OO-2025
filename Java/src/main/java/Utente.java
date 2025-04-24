@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Utente {
@@ -9,6 +10,8 @@ public class Utente {
     public Utente(String username, String password) {
         this.username = username;
         this.password = password;
+        this.bacheche = new ArrayList<>();
+        this.toDoCondivisi = new ArrayList<>();
     }
 
     public String getUsername() {
@@ -42,5 +45,31 @@ public class Utente {
     public void setToDoCondivisi(List<ToDo> toDoCondivisi) {
         this.toDoCondivisi = toDoCondivisi;
     }
+
+    @Override
+    public String toString() {
+        String toDoString = "ToDo Condivisi: ";
+
+        if (toDoCondivisi != null && !toDoCondivisi.isEmpty()) {
+            for (ToDo t : toDoCondivisi) {
+                toDoString += "\n  - " + t.getTitolo();
+            }
+        } else {
+            toDoString += "Nessuno";
+        }
+        return "Username: " + username + "\n" + toDoString;
+    }
+
+
+    public void aggiungiBacheca(Bacheca bacheca) {
+        this.bacheche.add(bacheca);
+    }
+
+    public void aggiungiToDoCondiviso(ToDo toDo) {
+        if (!this.toDoCondivisi.contains(toDo)) {
+            this.toDoCondivisi.add(toDo);
+        }
+    }
+
 }
 

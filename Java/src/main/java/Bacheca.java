@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 public class Bacheca {
     private TipoBacheca tipo;
@@ -7,6 +8,7 @@ public class Bacheca {
     public Bacheca(TipoBacheca tipo, String descrizione) {
         this.tipo = tipo;
         this.descrizione = descrizione;
+        this.toDoList = new ArrayList<>(); // inizializza la lista
     }
 
     public TipoBacheca getTipo() {
@@ -32,5 +34,26 @@ public class Bacheca {
     public void setToDoList(List<ToDo> toDoList) {
         this.toDoList = toDoList;
     }
+
+    @Override
+    public String toString() {
+        String testo = "Tipo: " + tipo + "\nDescrizione: " + descrizione;
+
+        if (toDoList != null && !toDoList.isEmpty()) {
+            testo += "\nToDo nella bacheca:";
+            for (ToDo t : toDoList) {
+                testo += "\n  - " + t.getTitolo();
+            }
+        } else {
+            testo += "\nNessun ToDo presente.";
+        }
+
+        return testo;
+    }
+
+    public void aggiungiToDo(ToDo toDo) {
+        this.toDoList.add(toDo);
+    }
+
 }
 
