@@ -1,6 +1,10 @@
 package gui;
+
+
 import javax.swing.*;
 import java.awt.*;
+
+
 class MenuBar extends JMenuBar {
     public MenuBar() {
         JMenu fileMenu = new JMenu("File");

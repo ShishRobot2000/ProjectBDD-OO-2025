@@ -1,7 +1,11 @@
 package model;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
+
+// Definisce la classe e gli attributi
 public class ToDo {
     private String titolo;
     private String dataDiScadenza;
@@ -12,7 +16,9 @@ public class ToDo {
     private String posizione;
     private StatoToDo stato;
     private List<Utente> utentiCondivisi;
+    
 
+    // Costruttore per inizializzare gli attributi
     public ToDo(String titolo, String dataDiScadenza, String url, String immagine,
                 String descrizione, String colore, String posizione) {
         this.titolo = titolo;
@@ -114,6 +120,13 @@ public class ToDo {
                 : "Nessuno");
     }
 
+
+    // Aggiunta temporanea per l'utilizzo di ToDo in DashboardPanel
+    public ToDo(String titolo) {
+    this(titolo, "", "", "", "", "FFFFFF", "");
+}
+
+    // Serve per condividere il ToDo con un utente
     public void condividiCon(Utente utente) {
         if (this.utentiCondivisi == null) {
             this.utentiCondivisi = new ArrayList<>();
