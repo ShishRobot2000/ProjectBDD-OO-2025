@@ -69,12 +69,14 @@ public class Controller {
                 JOptionPane.WARNING_MESSAGE);
 
         if (option == JOptionPane.YES_OPTION) {
-            toDoDAO.elimina(todo.getTitolo(), utenteCorrente.getUsername(), bacheca.getTipo());
+            if (bacheca != null) {
+                bacheca.getToDoList().remove(todo);
+            }
 
             board.clearToDos();
-            List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
-            bacheca.setToDoList(todos);
-            todos.forEach(board::addToDo);
+            for (ToDo t : bacheca.getToDoList()) {
+                board.addToDo(t);
+            }
         }
     }
 
