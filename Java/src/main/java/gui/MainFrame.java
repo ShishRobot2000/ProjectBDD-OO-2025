@@ -29,7 +29,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showDashboard(String username) {
-        dashboardPanel.loadUser(username);
+        SwingUtilities.invokeLater(() -> dashboardPanel.loadUser(username)); // Poi carica i dati con eventuali popup
         cardLayout.show(mainPanel, "Dashboard");
     }
 

@@ -1,7 +1,8 @@
 package gui;
 
 import model.ToDo;
-import controller.*;
+import model.StatoToDo;
+import controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,9 +13,7 @@ public class ToDoCardPanel extends JPanel {
 
     private ToDo todo;
     private BoardPanel parent;
-
     private Controller controller;
-
 
     public ToDoCardPanel(ToDo todo, BoardPanel boardPanel, Controller controller) {
         this.todo = todo;
@@ -40,6 +39,14 @@ public class ToDoCardPanel extends JPanel {
         add(titolo, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
+
+        // Checkbox per lo stato completato
+        JCheckBox checkCompletato = new JCheckBox("Completato");
+        checkCompletato.setSelected(todo.getStato() == StatoToDo.Completato);
+        checkCompletato.addActionListener(e -> {
+            controller.toggleCompletamento(parent, todo);
+        });
+
         JButton btnEdit = new JButton("Modifica");
         JButton btnRemove = new JButton("Rimuovi");
 
@@ -47,6 +54,7 @@ public class ToDoCardPanel extends JPanel {
         btnRemove.addActionListener(e -> removeToDo());
 
         buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(checkCompletato);  // aggiunto checkbox
         buttonPanel.add(btnEdit);
         buttonPanel.add(btnRemove);
 
@@ -83,6 +91,13 @@ public class ToDoCardPanel extends JPanel {
         add(titolo, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
+
+        JCheckBox checkCompletato = new JCheckBox("Completato");
+        checkCompletato.setSelected(todo.getStato() == StatoToDo.Completato);
+        checkCompletato.addActionListener(e -> {
+            controller.toggleCompletamento(parent, todo);
+        });
+
         JButton btnEdit = new JButton("Modifica");
         JButton btnRemove = new JButton("Rimuovi");
 
@@ -90,6 +105,7 @@ public class ToDoCardPanel extends JPanel {
         btnRemove.addActionListener(e -> removeToDo());
 
         buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(checkCompletato);
         buttonPanel.add(btnEdit);
         buttonPanel.add(btnRemove);
 

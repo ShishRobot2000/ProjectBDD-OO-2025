@@ -143,5 +143,15 @@ public class ToDo {
             utente.getToDoCondivisi().add(this);
         }
     }
+    
+    
+    public void segnaCompletato() {
+      this.stato = StatoToDo.Completato;
+   }
+
+    public void segnaNonCompletato() {
+      this.stato = StatoToDo.NonCompletato;
+    }
+
 }
 
