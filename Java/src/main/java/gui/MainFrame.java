@@ -36,5 +36,5 @@ public class MainFrame extends JFrame {
     setContentPane(new LoginPanel(this)); // Mostra il pannello di login
     revalidate(); // Aggiorna il layout
     repaint();    // Ridisegna la finestra
-}
+    }
 }

@@ -178,6 +178,7 @@ public class Controller {
     public Utente getUtenteCorrente() {
        return utenteCorrente;
    }
+
 }
 
 
