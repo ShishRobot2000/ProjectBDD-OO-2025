@@ -154,6 +154,30 @@ public class Controller {
     public boolean rimuoviCondivisione(String utente, ToDo todo, String prop, TipoBacheca tipo) {
         return condivisioneDAO.rimuoviCondivisione(utente, prop, tipo.name(), todo.getTitolo());
     }
+
+
+    public boolean register(String username, String password) {
+
+       System.out.println("[DEBUG] Provo a registrare: '" + username + "'");
+
+       username = username.trim();
+
+       if (utenteDAO.findByUsername(username) != null) {
+          System.out.println("[DEBUG] Registrazione fallita: utente esiste già");
+          return false;
+      } else {
+          System.out.println("[DEBUG] Utente nuovo: procedo alla registrazione");
+          Utente nuovoUtente = new Utente(username, password);
+          boolean result = utenteDAO.salvaUtente(nuovoUtente);
+          System.out.println("[DEBUG] Salvataggio completato? " + result);
+          return result;
+     }
+    }
+
+    // Carica l'utente e lo memorizza 
+    public Utente getUtenteCorrente() {
+       return utenteCorrente;
+   }
 }
 
 
