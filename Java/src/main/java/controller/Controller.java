@@ -178,6 +178,21 @@ public class Controller {
     public Utente getUtenteCorrente() {
        return utenteCorrente;
    }
+   
+
+   // Resetta l'utente corrente e svuota le bacheche, così il prossimo utente non vedrà i dati dell'utente precedente
+   public void logout() {
+    utenteCorrente = null;
+
+    universitaBoard.setBacheca(null);
+    universitaBoard.clearToDos();
+
+    lavoroBoard.setBacheca(null);
+    lavoroBoard.clearToDos();
+
+    tempoLiberoBoard.setBacheca(null);
+    tempoLiberoBoard.clearToDos();
+  }
 }
 
 

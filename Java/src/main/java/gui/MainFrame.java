@@ -26,15 +26,17 @@ public class MainFrame extends JFrame {
 
         setVisible(true);
     }
+    
 
+    // Serve per caricare i dati dell'utente e mostrare il dashboard
     public void showDashboard(String username) {
-        dashboardPanel.loadUser(username); // <--- semplice e sicuro
+        dashboardPanel.loadUser(username);
         cardLayout.show(mainPanel, "Dashboard");
     }
 
+
+    // Mostra il pannello di login
     public void showLoginPanel() {
-    setContentPane(new LoginPanel(this)); // Mostra il pannello di login
-    revalidate(); // Aggiorna il layout
-    repaint();    // Ridisegna la finestra
-}
+       cardLayout.show(mainPanel, "Login"); 
+  }
 }
