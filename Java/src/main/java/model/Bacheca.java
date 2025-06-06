@@ -1,6 +1,10 @@
 package model;
+
+
 import java.util.ArrayList;
 import java.util.List;
+
+
 public class Bacheca {
     private TipoBacheca tipo;
     private String descrizione;

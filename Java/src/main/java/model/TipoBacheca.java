@@ -1,6 +1,6 @@
 package model;
 public enum TipoBacheca {
-    Università,
+    Universita,
     Lavoro,
     TempoLibero
 }

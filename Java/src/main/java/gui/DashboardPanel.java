@@ -8,69 +8,53 @@ import model.Utente;
 import model.Bacheca;
 import model.ToDo;
 import model.TipoBacheca;
-import service.AuthService;
 
+import controller.*;
+
+// Classe che estende JPanel, rappresenta un pannello grafico personalizzato
 public class DashboardPanel extends JPanel {
 
     private MainFrame parent;
 
-    private JPanel universitaPanel;
-    private JPanel lavoroPanel;
-    private JPanel tempoLiberoPanel;
+    // Pannelli per le bacheche
+    private BoardPanel universitaBoard;
+    private BoardPanel lavoroBoard;
+    private BoardPanel tempoLiberoBoard;
 
+    private Controller controller; // controller MVC
+
+    // Pannello principale e imposta il layout
     public DashboardPanel(MainFrame parent) {
         this.parent = parent;
         setLayout(new BorderLayout());
 
         JPanel boards = new JPanel(new GridLayout(1, 3, 10, 10));
 
-        universitaPanel = createBoardPanel("Università");
-        lavoroPanel = createBoardPanel("Lavoro");
-        tempoLiberoPanel = createBoardPanel("Tempo Libero");
+        universitaBoard = new BoardPanel("Università", null, null);
+        lavoroBoard = new BoardPanel("Lavoro", null, null);
+        tempoLiberoBoard = new BoardPanel("Tempo Libero", null, null);
 
-        boards.add(universitaPanel);
-        boards.add(lavoroPanel);
-        boards.add(tempoLiberoPanel);
+        // Inizializza il controller con i 3 BoardPanel
+        controller = new Controller(universitaBoard, lavoroBoard, tempoLiberoBoard);
+
+        // 3. ASSEGNA il controller ai board (usa metodo setController che ti consiglio di aggiungere)
+        universitaBoard.setController(controller);
+        lavoroBoard.setController(controller);
+        tempoLiberoBoard.setController(controller);
+
+        boards.add(universitaBoard);
+        boards.add(lavoroBoard);
+        boards.add(tempoLiberoBoard);
 
         add(boards, BorderLayout.CENTER);
     }
 
-    private JPanel createBoardPanel(String title) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        TitledBorder border = BorderFactory.createTitledBorder(title);
-        border.setTitleFont(new Font("SansSerif", Font.BOLD, 18));
-        border.setTitleJustification(TitledBorder.CENTER);
-        panel.setBorder(border);
-
-        return panel;
-    }
-
+    // Metodo pubblico per caricare i dati di un utente
     public void loadUser(String username) {
-        Utente utente = AuthService.getUtente(username);
-
-        // Pulisce i pannelli
-        universitaPanel.removeAll();
-        lavoroPanel.removeAll();
-        tempoLiberoPanel.removeAll();
-
-        // Aggiunge i ToDo dalle bacheche dell’utente
-        for (Bacheca b : utente.getBacheche()) {
-            JPanel target = switch (b.getTipo()) {
-                case Università -> universitaPanel;
-                case Lavoro -> lavoroPanel;
-                case TempoLibero -> tempoLiberoPanel;
-            };
-
-            for (ToDo t : b.getToDoList()) {
-                target.add(new ToDoCardPanel(t));
-            }
-        }
-
-        revalidate();
-        repaint();
+        controller.loadUser(username);
     }
+
 }
+
 
 
