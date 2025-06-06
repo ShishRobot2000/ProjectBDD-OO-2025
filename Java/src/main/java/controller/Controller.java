@@ -73,7 +73,6 @@ public class Controller {
             boolean success = toDoDAO.elimina(todo.getTitolo(), utenteCorrente.getUsername(), bacheca.getTipo());
 
             if (success) {
-                // 🔄 Ricarica i ToDo aggiornati dal database
                 List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
                 bacheca.setToDoList(todos);
 

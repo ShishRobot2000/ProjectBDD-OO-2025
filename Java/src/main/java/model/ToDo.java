@@ -105,6 +105,7 @@ public class ToDo {
         this.utentiCondivisi = utentiCondivisi;
     }
 
+
     @Override
     public String toString() {
         return "Titolo: " + titolo +
