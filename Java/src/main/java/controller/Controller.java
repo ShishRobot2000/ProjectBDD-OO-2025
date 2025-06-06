@@ -17,6 +17,8 @@ public class Controller {
     private final IUtenteDAO utenteDAO;
     private final IBachecaDAO bachecaDAO;
     private final IToDoDAO toDoDAO;
+    private final ICondivisioneDAO condivisioneDAO = new CondivisioneDAO();
+
 
     private Utente utenteCorrente;
 
@@ -66,15 +68,22 @@ public class Controller {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
 
-        if (option == JOptionPane.YES_OPTION) {
-            toDoDAO.elimina(todo.getTitolo(), utenteCorrente.getUsername(), bacheca.getTipo());
+        if (option == JOptionPane.YES_OPTION && bacheca != null) {
 
-            board.clearToDos();
-            List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
-            bacheca.setToDoList(todos);
-            todos.forEach(board::addToDo);
+            boolean success = toDoDAO.elimina(todo.getTitolo(), utenteCorrente.getUsername(), bacheca.getTipo());
+
+            if (success) {
+                List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
+                bacheca.setToDoList(todos);
+
+                board.clearToDos();
+                todos.forEach(board::addToDo);
+            } else {
+                JOptionPane.showMessageDialog(board, "Errore durante l'eliminazione dal database.");
+            }
         }
     }
+
 
     public void loadUser(String username) {
         utenteCorrente = utenteDAO.findByUsername(username);
@@ -95,13 +104,12 @@ public class Controller {
             b.setToDoList(todos);
 
             BoardPanel target = switch (tipo) {
-                case Università -> universitaBoard;
+                case Universita -> universitaBoard;
                 case Lavoro -> lavoroBoard;
                 case TempoLibero -> tempoLiberoBoard;
             };
 
             target.setBacheca(b);
-            todos.forEach(target::addToDo);
         }
     }
 
@@ -128,31 +136,24 @@ public class Controller {
             Bacheca bacheca = board.getBacheca();
             toDoDAO.aggiorna(todo, utenteCorrente.getUsername(), bacheca.getTipo());
 
-            updateView.run(); // Aggiorna la card
+            // Ricarica tutti i ToDo della bacheca
+            List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
+            bacheca.setToDoList(todos);
+            board.setBacheca(bacheca); // triggera il refresh della GUI
         }
     }
 
-    public boolean register(String username, String password) {
-
-       System.out.println("[DEBUG] Provo a registrare: '" + username + "'");
-
-       username = username.trim();
-
-       if (utenteDAO.findByUsername(username) != null) {
-          System.out.println("[DEBUG] Registrazione fallita: utente esiste già");
-          return false;
-      } else {
-          System.out.println("[DEBUG] Utente nuovo: procedo alla registrazione");
-          Utente nuovoUtente = new Utente(username, password);
-          boolean result = utenteDAO.salvaUtente(nuovoUtente);
-          System.out.println("[DEBUG] Salvataggio completato? " + result);
-          return result;
-     }
+    public boolean condividiToDo(String destinatario, ToDo todo, String prop, TipoBacheca tipo) {
+        return condivisioneDAO.condividi(destinatario, prop, tipo.name(), todo.getTitolo());
     }
-    
-    // Carica l'utente e lo memorizza 
-    public Utente getUtenteCorrente() {
-       return utenteCorrente;
-  }
+
+    public boolean isToDoCondiviso(String utente, ToDo todo, String prop, TipoBacheca tipo) {
+        return condivisioneDAO.esisteCondivisione(utente, prop, tipo.name(), todo.getTitolo());
+    }
+
+    public boolean rimuoviCondivisione(String utente, ToDo todo, String prop, TipoBacheca tipo) {
+        return condivisioneDAO.rimuoviCondivisione(utente, prop, tipo.name(), todo.getTitolo());
+    }
 }
+
 

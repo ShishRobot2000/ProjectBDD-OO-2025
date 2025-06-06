@@ -18,20 +18,18 @@ public class ToDoDAO implements IToDoDAO {
                 "SET posizione = posizione + 1 " +
                 "WHERE proprietario = ? AND tipo_bacheca = ?";
 
-        String insert = "INSERT INTO todo (titolo, descrizione, scadenza, colore, stato, url, immagine, posizione, proprietario, tipo_bacheca) " +
+        String insert = "INSERT INTO todo (titolo, descrizione, data_scadenza, colore, stato, url, immagine, posizione, proprietario, tipo_bacheca) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnessioneDatabase.getConnection()) {
             conn.setAutoCommit(false); // Start transaction
 
-            // 1. Sposta tutti in avanti
             try (PreparedStatement stmtUpdate = conn.prepareStatement(aggiornaPosizioni)) {
                 stmtUpdate.setString(1, proprietario);
                 stmtUpdate.setString(2, tipoBacheca.name());
                 stmtUpdate.executeUpdate();
             }
 
-            // 2. Inserisci il nuovo con posizione = 1
             try (PreparedStatement stmtInsert = conn.prepareStatement(insert)) {
                 stmtInsert.setString(1, todo.getTitolo());
                 stmtInsert.setString(2, todo.getDescrizione());
@@ -40,7 +38,7 @@ public class ToDoDAO implements IToDoDAO {
                 stmtInsert.setString(5, todo.getStato().name());
                 stmtInsert.setString(6, todo.getUrl());
                 stmtInsert.setString(7, todo.getImmagine());
-                stmtInsert.setInt(8, 1); // posizione = 1
+                stmtInsert.setInt(8, 1);
                 stmtInsert.setString(9, proprietario);
                 stmtInsert.setString(10, tipoBacheca.name());
 
@@ -70,14 +68,14 @@ public class ToDoDAO implements IToDoDAO {
             while (rs.next()) {
                 ToDo todo = new ToDo(
                         rs.getString("titolo"),
-                        rs.getString("scadenza"),
+                        rs.getString("data_scadenza"),
                         rs.getString("url"),
                         rs.getString("immagine"),
                         rs.getString("descrizione"),
                         rs.getString("colore")
                 );
                 todo.setStato(StatoToDo.valueOf(rs.getString("stato")));
-                todo.setPosizione(rs.getInt("posizione")); // ✅ int, corretto
+                todo.setPosizione(rs.getInt("posizione"));
 
                 lista.add(todo);
             }
@@ -89,11 +87,9 @@ public class ToDoDAO implements IToDoDAO {
         return lista;
     }
 
-
-
     @Override
     public boolean aggiorna(ToDo todo, String proprietario, TipoBacheca tipoBacheca) {
-        String sql = "UPDATE todo SET descrizione = ?, scadenza = ?, colore = ?, stato = ?, " +
+        String sql = "UPDATE todo SET descrizione = ?, data_scadenza = ?, colore = ?, stato = ?, " +
                 "url = ?, immagine = ?, posizione = ? " +
                 "WHERE titolo = ? AND proprietario = ? AND tipo_bacheca = ?";
 
@@ -119,7 +115,6 @@ public class ToDoDAO implements IToDoDAO {
         }
     }
 
-
     @Override
     public boolean elimina(String titolo, String proprietario, TipoBacheca tipoBacheca) {
         String sql = "DELETE FROM todo WHERE titolo = ? AND proprietario = ? AND tipo_bacheca = ?";
@@ -136,7 +131,6 @@ public class ToDoDAO implements IToDoDAO {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
-        }
-    }
+        }
+    }
 }
-

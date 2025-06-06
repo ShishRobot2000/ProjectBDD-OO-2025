@@ -85,6 +85,7 @@ public class DashboardPanel extends JPanel {
           setWelcomeUser("ospite");
        }
     }
+
 }
 
 
