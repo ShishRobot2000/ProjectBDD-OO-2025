@@ -68,17 +68,23 @@ public class Controller {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
 
-        if (option == JOptionPane.YES_OPTION) {
-            if (bacheca != null) {
-                bacheca.getToDoList().remove(todo);
-            }
+        if (option == JOptionPane.YES_OPTION && bacheca != null) {
 
-            board.clearToDos();
-            for (ToDo t : bacheca.getToDoList()) {
-                board.addToDo(t);
+            boolean success = toDoDAO.elimina(todo.getTitolo(), utenteCorrente.getUsername(), bacheca.getTipo());
+
+            if (success) {
+                // 🔄 Ricarica i ToDo aggiornati dal database
+                List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
+                bacheca.setToDoList(todos);
+
+                board.clearToDos();
+                todos.forEach(board::addToDo);
+            } else {
+                JOptionPane.showMessageDialog(board, "Errore durante l'eliminazione dal database.");
             }
         }
     }
+
 
     public void loadUser(String username) {
         utenteCorrente = utenteDAO.findByUsername(username);
