@@ -8,16 +8,16 @@ import controller.*;
 
 public class LoginPanel extends JPanel {
 
-    private Controller controller = new Controller(null, null, null); // Non usiamo i board qui
+    private final JTextField userField = new JTextField(15);
+    private final JPasswordField passField = new JPasswordField(15);
+    private final Controller controller = new Controller(null, null, null); // Non usiamo i board qui
 
     public LoginPanel(MainFrame parent) {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
         JLabel userLabel = new JLabel("Username:");
-        JTextField userField = new JTextField(15);
         JLabel passLabel = new JLabel("Password:");
-        JPasswordField passField = new JPasswordField(15);
         JButton loginButton = new JButton("Login");
         loginButton.setPreferredSize(new Dimension(89, 25));
 
@@ -43,11 +43,17 @@ public class LoginPanel extends JPanel {
 
         JButton registerButton = new JButton("Registrati");
         registerButton.addActionListener(e -> {
-               new RegistrationDialog(parent, controller); // Apri la finestra di registrazione
-     });
+            new RegistrationDialog(parent, controller); // Apri la finestra di registrazione
+        });
 
         gbc.gridy = 3;
         add(registerButton, gbc);
     }
+
+    public void clearFields() {
+        userField.setText("");
+        passField.setText("");
+    }
 }
+
 
