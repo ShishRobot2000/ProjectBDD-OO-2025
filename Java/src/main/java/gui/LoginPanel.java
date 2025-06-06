@@ -4,7 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
+import controller.*;
+
 public class LoginPanel extends JPanel {
+
+    private Controller controller = new Controller(null, null, null); // Non usiamo i board qui
 
     public LoginPanel(MainFrame parent) {
         setLayout(new GridBagLayout());
@@ -15,16 +19,14 @@ public class LoginPanel extends JPanel {
         JLabel passLabel = new JLabel("Password:");
         JPasswordField passField = new JPasswordField(15);
         JButton loginButton = new JButton("Login");
+        loginButton.setPreferredSize(new Dimension(89, 25));
 
+        // Listener delegato al controller
         loginButton.addActionListener((ActionEvent e) -> {
             String user = userField.getText();
             String pass = new String(passField.getPassword());
 
-            if (user.equals("admin") && pass.equals("1234")) { // Sostituisci con chiamata a servizio auth
-                parent.showDashboard(user);
-            } else {
-                JOptionPane.showMessageDialog(this, "Credenziali errate");
-            }
+            controller.login(user, pass, parent);
         });
 
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -38,5 +40,14 @@ public class LoginPanel extends JPanel {
         add(passField, gbc);
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
         add(loginButton, gbc);
+
+        JButton registerButton = new JButton("Registrati");
+        registerButton.addActionListener(e -> {
+               new RegistrationDialog(parent, controller); // Apri la finestra di registrazione
+     });
+
+        gbc.gridy = 3;
+        add(registerButton, gbc);
     }
 }
+

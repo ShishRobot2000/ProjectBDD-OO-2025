@@ -1,7 +1,11 @@
 package model;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
+
+// Definisce la classe e gli attributi
 public class ToDo {
     private String titolo;
     private String dataDiScadenza;
@@ -9,21 +13,23 @@ public class ToDo {
     private String immagine;
     private String descrizione;
     private String colore;
-    private String posizione;
+    private int posizione;
     private StatoToDo stato;
     private List<Utente> utentiCondivisi;
+    
 
+    // Costruttore per inizializzare gli attributi
     public ToDo(String titolo, String dataDiScadenza, String url, String immagine,
-                String descrizione, String colore, String posizione) {
+                String descrizione, String colore) {
         this.titolo = titolo;
         this.dataDiScadenza = dataDiScadenza;
         this.url = url;
         this.immagine = immagine;
         this.descrizione = descrizione;
         this.colore = colore;
-        this.posizione = posizione;
-        this.stato = StatoToDo.NonCompletato; // valore di default
-        this.utentiCondivisi = new ArrayList<>(); // inizializzo lista vuota
+        this.stato = StatoToDo.NonCompletato;
+        this.utentiCondivisi = new ArrayList<>();
+        this.posizione = 0; // valore segnaposto, sarà sovrascritto dal DAO
     }
 
 
@@ -75,11 +81,11 @@ public class ToDo {
         this.colore = colore;
     }
 
-    public String getPosizione() {
+    public int getPosizione() {
         return posizione;
     }
 
-    public void setPosizione(String posizione) {
+    public void setPosizione(int posizione) {
         this.posizione = posizione;
     }
 
@@ -107,13 +113,20 @@ public class ToDo {
                 "\nImmagine: " + (immagine != null ? immagine : "Nessuna") +
                 "\nDescrizione: " + (descrizione != null ? descrizione : "Nessuna descrizione") +
                 "\nColore: " + (colore != null ? colore : "Nessun colore") +
-                "\nPosizione: " + (posizione != null ? posizione : "Nessuna posizione") +
+                "\nPosizione: " + (posizione != 0 ? posizione : "Nessuna posizione") +
                 "\nStato: " + stato +
                 "\nUtenti Condivisi: " + (utentiCondivisi != null && !utentiCondivisi.isEmpty()
                 ? utentiCondivisi.stream().map(Utente::getUsername).toList()
                 : "Nessuno");
     }
 
+
+    // Aggiunta temporanea per l'utilizzo di ToDo in DashboardPanel
+    public ToDo(String titolo) {
+    this(titolo, "", "", "", "", "FFFFFF");
+}
+
+    // Serve per condividere il ToDo con un utente
     public void condividiCon(Utente utente) {
         if (this.utentiCondivisi == null) {
             this.utentiCondivisi = new ArrayList<>();

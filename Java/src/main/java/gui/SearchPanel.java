@@ -1,7 +1,7 @@
 package gui;
 import javax.swing.*;
 import java.awt.*;
-class SearchPanel extends JPanel {
+public class SearchPanel extends JPanel {
     public SearchPanel() {
         setLayout(new FlowLayout());
         add(new JLabel("Cerca:"));

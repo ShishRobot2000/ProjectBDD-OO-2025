@@ -31,4 +31,10 @@ public class MainFrame extends JFrame {
         dashboardPanel.loadUser(username); // <--- semplice e sicuro
         cardLayout.show(mainPanel, "Dashboard");
     }
+
+    public void showLoginPanel() {
+    setContentPane(new LoginPanel(this)); // Mostra il pannello di login
+    revalidate(); // Aggiorna il layout
+    repaint();    // Ridisegna la finestra
+}
 }

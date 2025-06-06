@@ -1,5 +1,3 @@
-package model;
-
 import gui.MainFrame;  // Assicurati che il package sia corretto
 
 import javax.swing.*;
