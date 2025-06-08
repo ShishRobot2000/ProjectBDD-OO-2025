@@ -46,6 +46,13 @@ public class ToDoFormDialog extends JDialog {
             content.setBackground(Color.LIGHT_GRAY);
         }
 
+        if (todo.getId() > 0 && (editable == false)) { // mostralo solo se è già stato salvato
+            content.add(new JLabel("ID:"));
+            JTextField idField = new JTextField(String.valueOf(todo.getId()));
+            idField.setEditable(false);
+            content.add(idField);
+        }
+
         // Titolo
         content.add(new JLabel("Titolo:"));
         titoloField = new JTextField(todo.getTitolo());

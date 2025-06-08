@@ -40,9 +40,7 @@ ALTER TABLE public.bacheca OWNER TO postgres;
 
 CREATE TABLE public.condivisione (
     username_utente character varying(100) NOT NULL,
-    proprietario_todo character varying(100) NOT NULL,
-    tipo_bacheca_todo character varying(30) NOT NULL,
-    titolo_todo character varying(100) NOT NULL
+    id_todo integer NOT NULL
 );
 
 
@@ -75,6 +73,7 @@ ALTER TABLE public.tipobacheca OWNER TO postgres;
 --
 
 CREATE TABLE public.todo (
+    id integer NOT NULL,
     titolo character varying(100) NOT NULL,
     data_scadenza character varying(20),
     url text,
@@ -91,6 +90,28 @@ CREATE TABLE public.todo (
 ALTER TABLE public.todo OWNER TO postgres;
 
 --
+-- Name: todo_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.todo_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.todo_id_seq OWNER TO postgres;
+
+--
+-- Name: todo_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.todo_id_seq OWNED BY public.todo.id;
+
+
+--
 -- Name: utente; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -101,6 +122,13 @@ CREATE TABLE public.utente (
 
 
 ALTER TABLE public.utente OWNER TO postgres;
+
+--
+-- Name: todo id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.todo ALTER COLUMN id SET DEFAULT nextval('public.todo_id_seq'::regclass);
+
 
 --
 -- Name: bacheca bacheca_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -115,7 +143,7 @@ ALTER TABLE ONLY public.bacheca
 --
 
 ALTER TABLE ONLY public.condivisione
-    ADD CONSTRAINT condivisione_pkey PRIMARY KEY (username_utente, proprietario_todo, tipo_bacheca_todo, titolo_todo);
+    ADD CONSTRAINT condivisione_pkey PRIMARY KEY (username_utente, id_todo);
 
 
 --
@@ -139,7 +167,7 @@ ALTER TABLE ONLY public.tipobacheca
 --
 
 ALTER TABLE ONLY public.todo
-    ADD CONSTRAINT todo_pkey PRIMARY KEY (proprietario, tipo_bacheca, titolo);
+    ADD CONSTRAINT todo_pkey PRIMARY KEY (id);
 
 
 --
@@ -167,11 +195,11 @@ ALTER TABLE ONLY public.bacheca
 
 
 --
--- Name: condivisione condivisione_proprietario_todo_tipo_bacheca_todo_titolo_to_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: condivisione condivisione_id_todo_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.condivisione
-    ADD CONSTRAINT condivisione_proprietario_todo_tipo_bacheca_todo_titolo_to_fkey FOREIGN KEY (proprietario_todo, tipo_bacheca_todo, titolo_todo) REFERENCES public.todo(proprietario, tipo_bacheca, titolo) ON DELETE CASCADE;
+    ADD CONSTRAINT condivisione_id_todo_fkey FOREIGN KEY (id_todo) REFERENCES public.todo(id) ON DELETE CASCADE;
 
 
 --

@@ -21,75 +21,70 @@ SET row_security = off;
 -- Data for Name: tipobacheca; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tipobacheca (nome) FROM stdin;
-Universita
-Lavoro
-TempoLibero
-\.
+INSERT INTO public.tipobacheca VALUES ('Universita');
+INSERT INTO public.tipobacheca VALUES ('Lavoro');
+INSERT INTO public.tipobacheca VALUES ('TempoLibero');
 
 
 --
 -- Data for Name: utente; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.utente (username, password) FROM stdin;
-admin	adminpass
-pippo	1234
-pluto	abcd
-paperino	quack
-\.
+INSERT INTO public.utente VALUES ('admin', 'adminpass');
+INSERT INTO public.utente VALUES ('pippo', '1234');
+INSERT INTO public.utente VALUES ('pluto', 'abcd');
+INSERT INTO public.utente VALUES ('paperino', 'quack');
 
 
 --
 -- Data for Name: bacheca; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.bacheca (tipo, descrizione, proprietario) FROM stdin;
-Universita	Esami e lezioni	admin
-Lavoro	Progetti di lavoro	admin
-TempoLibero	Serie TV e hobby	admin
-Universita	Appunti e orari	pippo
-Lavoro	Stage e tirocinio	pippo
-TempoLibero	Giochi e tempo libero	pippo
-Universita	Corsi serali	pluto
-Lavoro	Ufficio e pratiche	pluto
-TempoLibero	Sport e videogiochi	pluto
-\.
+INSERT INTO public.bacheca VALUES ('Universita', 'Esami e lezioni', 'admin');
+INSERT INTO public.bacheca VALUES ('Lavoro', 'Progetti di lavoro', 'admin');
+INSERT INTO public.bacheca VALUES ('TempoLibero', 'Serie TV e hobby', 'admin');
+INSERT INTO public.bacheca VALUES ('Universita', 'Appunti e orari', 'pippo');
+INSERT INTO public.bacheca VALUES ('Lavoro', 'Stage e tirocinio', 'pippo');
+INSERT INTO public.bacheca VALUES ('TempoLibero', 'Giochi e tempo libero', 'pippo');
+INSERT INTO public.bacheca VALUES ('Universita', 'Corsi serali', 'pluto');
+INSERT INTO public.bacheca VALUES ('Lavoro', 'Ufficio e pratiche', 'pluto');
+INSERT INTO public.bacheca VALUES ('TempoLibero', 'Sport e videogiochi', 'pluto');
 
 
 --
 -- Data for Name: statotodo; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.statotodo (nome) FROM stdin;
-Completato
-NonCompletato
-\.
+INSERT INTO public.statotodo VALUES ('Completato');
+INSERT INTO public.statotodo VALUES ('NonCompletato');
 
 
 --
 -- Data for Name: todo; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.todo (titolo, data_scadenza, url, immagine, descrizione, colore, posizione, stato, proprietario, tipo_bacheca) FROM stdin;
-Finire report	2025-06-12			Scrivere la relazione finale	CCFFCC	2	NonCompletato	admin	Lavoro
-Guardare serie	2025-06-15			Finire Stranger Things	99CCFF	1	Completato	admin	TempoLibero
-Ripassare Java	2025-06-11			Prepararsi per il test Java	FF9999	1	NonCompletato	pippo	Universita
-Inviare CV	2025-06-13			Candidarsi a stage	66FF66	1	Completato	pippo	Lavoro
-Allenamento serale	2025-06-10			Palestra alle 19	CCCCFF	1	NonCompletato	pluto	TempoLibero
-Studiare Basi di Dati	2025-06-11			Ripassare i capitoli 4 e 5	FFDD99	2	NonCompletato	admin	Universita
-\.
+INSERT INTO public.todo VALUES (1, 'Finire report', '2025-06-12', '', '', 'Scrivere la relazione finale', 'CCFFCC', 2, 'NonCompletato', 'admin', 'Lavoro');
+INSERT INTO public.todo VALUES (2, 'Guardare serie', '2025-06-15', '', '', 'Finire Stranger Things', '99CCFF', 1, 'Completato', 'admin', 'TempoLibero');
+INSERT INTO public.todo VALUES (3, 'Ripassare Java', '2025-06-11', '', '', 'Prepararsi per il test Java', 'FF9999', 1, 'NonCompletato', 'pippo', 'Universita');
+INSERT INTO public.todo VALUES (4, 'Inviare CV', '2025-06-13', '', '', 'Candidarsi a stage', '66FF66', 1, 'Completato', 'pippo', 'Lavoro');
+INSERT INTO public.todo VALUES (5, 'Allenamento serale', '2025-06-10', '', '', 'Palestra alle 19', 'CCCCFF', 1, 'NonCompletato', 'pluto', 'TempoLibero');
+INSERT INTO public.todo VALUES (6, 'Studiare Basi di Dati', '2025-06-11', '', '', 'Ripassare i capitoli 4 e 5', 'FFDD99', 2, 'NonCompletato', 'admin', 'Universita');
 
 
 --
 -- Data for Name: condivisione; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.condivisione (username_utente, proprietario_todo, tipo_bacheca_todo, titolo_todo) FROM stdin;
-pippo	admin	Universita	Studiare Basi di Dati
-pluto	admin	Lavoro	Finire report
-paperino	pippo	Universita	Ripassare Java
-\.
+INSERT INTO public.condivisione VALUES ('pippo', 6);
+INSERT INTO public.condivisione VALUES ('pluto', 1);
+INSERT INTO public.condivisione VALUES ('paperino', 3);
+
+
+--
+-- Name: todo_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.todo_id_seq', 1, false);
 
 
 --

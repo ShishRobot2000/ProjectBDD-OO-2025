@@ -73,7 +73,7 @@ public class Controller {
 
         if (option == JOptionPane.YES_OPTION && bacheca != null) {
 
-            boolean success = toDoDAO.elimina(todo.getTitolo(), utenteCorrente.getUsername(), bacheca.getTipo());
+            boolean success = toDoDAO.elimina(todo.getId());
 
             if (success) {
                 List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());

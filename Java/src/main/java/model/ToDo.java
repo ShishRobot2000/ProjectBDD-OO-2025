@@ -1,12 +1,11 @@
 package model;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
-
 // Definisce la classe e gli attributi
 public class ToDo {
+    private int id; // ID univoco del ToDo
     private String titolo;
     private String dataDiScadenza;
     private String url;
@@ -16,7 +15,6 @@ public class ToDo {
     private int posizione;
     private StatoToDo stato;
     private List<Utente> utentiCondivisi;
-    
 
     // Costruttore per inizializzare gli attributi
     public ToDo(String titolo, String dataDiScadenza, String url, String immagine,
@@ -30,8 +28,8 @@ public class ToDo {
         this.stato = StatoToDo.NonCompletato;
         this.utentiCondivisi = new ArrayList<>();
         this.posizione = 0; // valore segnaposto, sarà sovrascritto dal DAO
+        this.id = -1; // valore segnaposto, sarà impostato dal DAO o dal DB
     }
-
 
     public String getTitolo() {
         return titolo;
@@ -105,6 +103,13 @@ public class ToDo {
         this.utentiCondivisi = utentiCondivisi;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     @Override
     public String toString() {
@@ -121,11 +126,10 @@ public class ToDo {
                 : "Nessuno");
     }
 
-
     // Aggiunta temporanea per l'utilizzo di ToDo in DashboardPanel
     public ToDo(String titolo) {
-    this(titolo, "", "", "", "", "FFFFFF");
-}
+        this(titolo, "", "", "", "", "FFFFFF");
+    }
 
     // Serve per condividere il ToDo con un utente
     public void condividiCon(Utente utente) {
@@ -143,15 +147,14 @@ public class ToDo {
             utente.getToDoCondivisi().add(this);
         }
     }
-    
-    
-    public void segnaCompletato() {
-      this.stato = StatoToDo.Completato;
-   }
 
-    public void segnaNonCompletato() {
-      this.stato = StatoToDo.NonCompletato;
+    public void segnaCompletato() {
+        this.stato = StatoToDo.Completato;
     }
 
+    public void segnaNonCompletato() {
+        this.stato = StatoToDo.NonCompletato;
+    }
 }
+
 

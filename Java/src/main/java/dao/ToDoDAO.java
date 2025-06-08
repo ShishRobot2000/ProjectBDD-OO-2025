@@ -19,10 +19,10 @@ public class ToDoDAO implements IToDoDAO {
                 "WHERE proprietario = ? AND tipo_bacheca = ?";
 
         String insert = "INSERT INTO todo (titolo, descrizione, data_scadenza, colore, stato, url, immagine, posizione, proprietario, tipo_bacheca) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
         try (Connection conn = ConnessioneDatabase.getConnection()) {
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
 
             try (PreparedStatement stmtUpdate = conn.prepareStatement(aggiornaPosizioni)) {
                 stmtUpdate.setString(1, proprietario);
@@ -42,7 +42,10 @@ public class ToDoDAO implements IToDoDAO {
                 stmtInsert.setString(9, proprietario);
                 stmtInsert.setString(10, tipoBacheca.name());
 
-                stmtInsert.executeUpdate();
+                ResultSet rs = stmtInsert.executeQuery();
+                if (rs.next()) {
+                    todo.setId(rs.getInt("id")); // assegna l'ID generato
+                }
             }
 
             conn.commit();
@@ -54,6 +57,7 @@ public class ToDoDAO implements IToDoDAO {
         }
     }
 
+    @Override
     public List<ToDo> trovaPerBacheca(String proprietario, TipoBacheca tipoBacheca) {
         List<ToDo> lista = new ArrayList<>();
         String sql = "SELECT * FROM todo WHERE proprietario = ? AND tipo_bacheca = ? ORDER BY posizione ASC";
@@ -74,6 +78,7 @@ public class ToDoDAO implements IToDoDAO {
                         rs.getString("descrizione"),
                         rs.getString("colore")
                 );
+                todo.setId(rs.getInt("id"));
                 todo.setStato(StatoToDo.valueOf(rs.getString("stato")));
                 todo.setPosizione(rs.getInt("posizione"));
 
@@ -89,23 +94,21 @@ public class ToDoDAO implements IToDoDAO {
 
     @Override
     public boolean aggiorna(ToDo todo, String proprietario, TipoBacheca tipoBacheca) {
-        String sql = "UPDATE todo SET descrizione = ?, data_scadenza = ?, colore = ?, stato = ?, " +
-                "url = ?, immagine = ?, posizione = ? " +
-                "WHERE titolo = ? AND proprietario = ? AND tipo_bacheca = ?";
+        String sql = "UPDATE todo SET titolo = ?, descrizione = ?, data_scadenza = ?, colore = ?, stato = ?, " +
+                "url = ?, immagine = ?, posizione = ? WHERE id = ?";
 
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, todo.getDescrizione());
-            stmt.setString(2, todo.getDataDiScadenza());
-            stmt.setString(3, todo.getColore());
-            stmt.setString(4, todo.getStato().name());
-            stmt.setString(5, todo.getUrl());
-            stmt.setString(6, todo.getImmagine());
-            stmt.setInt(7, todo.getPosizione());
-            stmt.setString(8, todo.getTitolo());
-            stmt.setString(9, proprietario);
-            stmt.setString(10, tipoBacheca.name());
+            stmt.setString(1, todo.getTitolo());
+            stmt.setString(2, todo.getDescrizione());
+            stmt.setString(3, todo.getDataDiScadenza());
+            stmt.setString(4, todo.getColore());
+            stmt.setString(5, todo.getStato().name());
+            stmt.setString(6, todo.getUrl());
+            stmt.setString(7, todo.getImmagine());
+            stmt.setInt(8, todo.getPosizione());
+            stmt.setInt(9, todo.getId());
 
             return stmt.executeUpdate() > 0;
 
@@ -116,16 +119,13 @@ public class ToDoDAO implements IToDoDAO {
     }
 
     @Override
-    public boolean elimina(String titolo, String proprietario, TipoBacheca tipoBacheca) {
-        String sql = "DELETE FROM todo WHERE titolo = ? AND proprietario = ? AND tipo_bacheca = ?";
+    public boolean elimina(int id) {
+        String sql = "DELETE FROM todo WHERE id = ?";
 
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, titolo);
-            stmt.setString(2, proprietario);
-            stmt.setString(3, tipoBacheca.name());
-
+            stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
@@ -134,5 +134,6 @@ public class ToDoDAO implements IToDoDAO {
         }
     }
 }
+
 
 
