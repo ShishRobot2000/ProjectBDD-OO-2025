@@ -54,7 +54,7 @@ public class ToDoCardPanel extends JPanel {
         btnRemove.addActionListener(e -> removeToDo());
 
         buttonPanel.setLayout(new FlowLayout());
-        buttonPanel.add(checkCompletato);  // aggiunto checkbox
+        buttonPanel.add(checkCompletato);
         buttonPanel.add(btnEdit);
         buttonPanel.add(btnRemove);
 
