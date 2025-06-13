@@ -8,6 +8,7 @@ import interfacceDAO.*;
 import javax.swing.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -246,6 +247,38 @@ public class Controller {
         bacheca.setToDoList(todos);
         board.setBacheca(bacheca);
     }
+
+
+    // Metodo per ottenere le richieste pendenti per l'utente corrente
+    public List<String[]> getRichiestePendenti() {
+        if (utenteCorrente == null) return new ArrayList<>();
+        // recupera da DAO (implementazione DAO deve ritornare le richieste)
+        return ((CondivisioneDAO) condivisioneDAO).getRichiestePendentiPerUtente(utenteCorrente.getUsername());
+    }
+
+    // Qui la modifica importante per accettare la richiesta aggiornando lo stato
+    public boolean accettaRichiesta(String usernameRichiedente, String proprietario, String tipoBacheca, String titoloToDo) {
+        return ((CondivisioneDAO) condivisioneDAO).aggiornaStatoRichiesta(usernameRichiedente, proprietario, tipoBacheca, titoloToDo, "ACCEPTED");
+    }
+
+    // Qui rimuovi la richiesta semplicemente cancellando la riga o aggiornando stato a RIFIUTATO
+    public boolean rifiutaRichiesta(String usernameRichiedente, String proprietario, String tipoBacheca, String titoloToDo) {
+        return ((CondivisioneDAO) condivisioneDAO).aggiornaStatoRichiesta(usernameRichiedente, proprietario, tipoBacheca, titoloToDo, "REJECTED");
+    }
+    
+
+    public Bacheca getBachecaPerTipo(TipoBacheca tipo) {
+    // Cerca la bacheca in base al tipo, caricandola da DAO
+    if (utenteCorrente == null) return null;
+
+    Bacheca b = bachecaDAO.findByTipo(utenteCorrente.getUsername(), tipo);
+    if (b != null) {
+        List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), tipo);
+        b.setToDoList(todos);
+    }
+    return b;
+   }
+
 }
 
 

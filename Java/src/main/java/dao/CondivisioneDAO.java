@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CondivisioneDAO implements ICondivisioneDAO {
 
@@ -58,4 +60,57 @@ public class CondivisioneDAO implements ICondivisioneDAO {
             return false;
         }
     }
+
+    public List<String[]> getRichiestePendentiPerUtente(String proprietario) {
+        List<String[]> richieste = new ArrayList<>();
+        String sql = "SELECT username_utente, tipo_bacheca_todo, titolo_todo FROM condivisione WHERE proprietario_todo = ? AND stato = 'PENDING'";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, proprietario);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String richiedente = rs.getString("username_utente");
+                String tipoBacheca = rs.getString("tipo_bacheca_todo");
+                String titolo = rs.getString("titolo_todo");
+                richieste.add(new String[] { richiedente, tipoBacheca, titolo });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return richieste;
+    }
+
+    public boolean aggiornaStatoRichiesta(String username, String proprietario, String tipo, String titolo, String nuovoStato) {
+        String sql = "UPDATE condivisione SET stato = ? WHERE username_utente = ? AND proprietario_todo = ? AND tipo_bacheca_todo = ? AND titolo_todo = ?";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, nuovoStato);
+            stmt.setString(2, username);
+            stmt.setString(3, proprietario);
+            stmt.setString(4, tipo);
+            stmt.setString(5, titolo);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    
+    public boolean rimuoviRichiesta(String username, String proprietario, String tipo, String titolo) {
+    String sql = "DELETE FROM condivisione WHERE username_utente = ? AND proprietario_todo = ? AND tipo_bacheca_todo = ? AND titolo_todo = ? AND stato = 'PENDING'";
+    try (Connection conn = ConnessioneDatabase.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, username);
+        stmt.setString(2, proprietario);
+        stmt.setString(3, tipo);
+        stmt.setString(4, titolo);
+        return stmt.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+  }
+
+
 }

@@ -41,7 +41,21 @@ public class DashboardPanel extends JPanel {
         logoutButton.addActionListener(e -> {
             parent.showLoginPanel(); // Torna alla schermata di login 
         });
-        topPanel.add(logoutButton, BorderLayout.EAST);
+        // Pannello per contenere i bottoni sulla destra
+        JPanel rightButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+
+        // Bottone Inviti (prima del Logout)
+        JButton invitiButton = new JButton("Inviti");
+        invitiButton.addActionListener(e -> {
+           new InvitationsDialog(parent, controller.getUtenteCorrente());
+       });
+        rightButtonsPanel.add(invitiButton);
+
+        // Bottone Logout
+        rightButtonsPanel.add(logoutButton);
+
+        // Aggiungiamo il pannello con i due bottoni sulla destra del topPanel
+        topPanel.add(rightButtonsPanel, BorderLayout.EAST);
 
         // Aggiungi topPanel in alto
         add(topPanel, BorderLayout.NORTH);
@@ -75,16 +89,20 @@ public class DashboardPanel extends JPanel {
 
     // Metodo che chiede al controller chi è l'utente corrente 
     public void loadUser(String username) {
-       controller.loadUser(username);
+    controller.loadUser(username);
 
-       Utente utente = controller.getUtenteCorrente();
+    Utente utente = controller.getUtenteCorrente();
 
-       if (utente != null) {
-          setWelcomeUser(utente.getUsername());
-       } else {
-          setWelcomeUser("ospite");
-       }
+    if (utente != null) {
+       setWelcomeUser(utente.getUsername());
+
+       universitaBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.Universita));
+       lavoroBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.Lavoro));
+       tempoLiberoBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.TempoLibero));
+    } else {
+       setWelcomeUser("ospite");
     }
+  }
 
 }
 
