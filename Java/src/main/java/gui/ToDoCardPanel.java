@@ -29,8 +29,8 @@ public class ToDoCardPanel extends JPanel {
             setBackground(Color.WHITE);
         }
 
-        setMaximumSize(new Dimension(250, 100));
-        setPreferredSize(new Dimension(250, 100));
+        setMaximumSize(new Dimension(300, 100));
+        setPreferredSize(new Dimension(300, 100));
 
         JLabel titolo = new JLabel("<html><div style='text-align: center;'><b>" + todo.getTitolo() +
                 "</b><br/>Scadenza: " + todo.getDataDiScadenza() + "</div></html>");
