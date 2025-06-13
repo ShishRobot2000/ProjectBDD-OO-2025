@@ -63,17 +63,22 @@ public class CondivisioneDAO implements ICondivisioneDAO {
 
     public List<String[]> getRichiestePendentiPerUtente(String proprietario) {
         List<String[]> richieste = new ArrayList<>();
-        String sql = "SELECT username_utente, tipo_bacheca_todo, titolo_todo FROM condivisione WHERE proprietario_todo = ? AND stato = 'PENDING'";
+        String sql = """
+            SELECT c.username_utente, t.tipo_bacheca, t.titolo
+            FROM condivisione c
+            JOIN todo t ON c.id_todo = t.id
+            WHERE t.proprietario = ? AND t.stato = 'PENDING'
+            """;
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, proprietario);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                String richiedente = rs.getString("username_utente");
-                String tipoBacheca = rs.getString("tipo_bacheca_todo");
-                String titolo = rs.getString("titolo_todo");
-                richieste.add(new String[] { richiedente, tipoBacheca, titolo });
-            }
+        stmt.setString(1, proprietario);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            String richiedente = rs.getString("username_utente");
+            String tipoBacheca = rs.getString("tipo_bacheca");
+            String titolo = rs.getString("titolo_todo");
+            richieste.add(new String[] { richiedente, tipoBacheca, titolo });
+        }
         } catch (SQLException e) {
             e.printStackTrace();
         }
