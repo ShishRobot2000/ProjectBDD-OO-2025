@@ -11,4 +11,6 @@ public interface ICondivisioneDAO {
     List<String[]> getRichiestePendentiPerUtente(String proprietario);
     boolean aggiornaStatoRichiesta(String username, String proprietario, String tipoBacheca, String titoloToDo, String nuovoStato);
      boolean rimuoviRichiesta(String username, String proprietario, String tipoBacheca, String titoloToDo);
+
+    boolean eliminaCondivisioniCollegate(int id);
 }

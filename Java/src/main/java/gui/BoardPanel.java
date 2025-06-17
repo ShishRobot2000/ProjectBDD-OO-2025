@@ -14,12 +14,14 @@ public class BoardPanel extends JPanel {
 
     private Controller controller; // controller condiviso
     private JButton addButton;     // pulsante per aggiungere ToDo
+    private Utente utenteCorrente; // riferimento all'utente corrente
 
     // Costruttore che inizializza il pannello della bacheca
-    public BoardPanel(String boardName, Bacheca bacheca, Controller controller) {
+    public BoardPanel(String boardName, Bacheca bacheca, Controller controller, Utente utenteCorrente) {
         this.boardName = boardName;
         this.bacheca = bacheca;
         this.controller = controller;
+        this.utenteCorrente = utenteCorrente;
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder(boardName));
@@ -28,39 +30,57 @@ public class BoardPanel extends JPanel {
         toDoListPanel.setLayout(new BoxLayout(toDoListPanel, BoxLayout.Y_AXIS));
         add(new JScrollPane(toDoListPanel), BorderLayout.CENTER);
 
-        // Inizializza il pulsante ma NON registrare ancora il listener
         addButton = new JButton("+ Aggiungi ToDo");
         add(addButton, BorderLayout.SOUTH);
-    }
 
-    // Imposta il controller dopo la costruzione e registra il listener
+        // Registra subito il listener sul pulsante
+        //addButton.addActionListener(e -> controller.addNewToDo(this));
+        
+        if (controller != null) {
+             addButton.addActionListener(e -> controller.addNewToDo(this));
+       }
+    }
+    
+
+    // Setter per l’utente corrente (se vuoi modificarlo dopo la costruzione)
+    public void setUtenteCorrente(Utente utente) {
+        this.utenteCorrente = utente;
+    }
+    
     public void setController(Controller controller) {
         this.controller = controller;
 
-        // Registra il listener ora che il controller è disponibile
-        addButton.addActionListener(e -> controller.addNewToDo(this));
+        // Rimuove eventuali listener precedenti per evitare duplicati
+        for (var al : addButton.getActionListeners()) {
+             addButton.removeActionListener(al);
+       }
+
+       if (controller != null) {
+             addButton.addActionListener(e -> controller.addNewToDo(this));
+        }
     }
 
     // Metodo per impostare la bacheca e caricare i ToDo
     public void setBacheca(Bacheca bacheca) {
         this.bacheca = bacheca;
-        clearToDos();
-        if (bacheca != null) {
-            for (ToDo todo : bacheca.getToDoList()) {
-                addToDo(todo);
-            }
-        }
+
+    }
+    
+
+    public void aggiornaBoard() {
+        refresh();
     }
 
-    // Crea un nuovo ToDoCardPanel e lo aggiunge al pannello
+    
+    // Metodo per aggiungere una ToDoCardPanel al pannello
     public void addToDo(ToDo todo) {
-        ToDoCardPanel card = new ToDoCardPanel(todo, this, controller);
+        ToDoCardPanel card = new ToDoCardPanel(todo, this, controller, utenteCorrente);
         toDoListPanel.add(card);
         revalidate();
         repaint();
     }
 
-    // Metodo per rimuovere un ToDo dalla BoardPanel
+    // Metodo per rimuovere un ToDo dalla BoardPanel tramite il controller
     public void removeToDo(ToDo todo) {
         controller.removeToDo(this, todo);
     }
@@ -72,15 +92,34 @@ public class BoardPanel extends JPanel {
         repaint();
     }
 
-    // Metodo per ottenere la bacheca associata a questo pannello
+    public void refresh() {
+        clearToDos();
+
+        if (bacheca != null) {
+            for (ToDo todo : bacheca.getToDoList()) {
+                addToDo(todo);
+            }
+        }
+
+        if (utenteCorrente != null && bacheca != null) {
+            for (ToDo todo : utenteCorrente.getToDoCondivisi()) {
+                // Aggiungi solo se appartiene alla bacheca corrente
+                if (todo.getTipoBacheca() == bacheca.getTipo()) {
+                    // Evita duplicati
+                    if (!bacheca.getToDoList().contains(todo)) {
+                        addToDo(todo);
+                    }
+                }
+            }
+        }
+    }
+
+    // Getters
     public Bacheca getBacheca() {
         return bacheca;
     }
 
-    // Metodo per ottenere il nome della bacheca
     public String getBoardName() {
         return boardName;
     }
-
 }
-

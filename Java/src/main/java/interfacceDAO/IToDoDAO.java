@@ -18,4 +18,6 @@ public interface IToDoDAO {
 
     // Elimina un ToDo usando il suo ID
     boolean elimina(int id);
+
+    List<ToDo> getToDoCondivisiCon(String username);
 }

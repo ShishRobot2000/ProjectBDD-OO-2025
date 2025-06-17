@@ -63,12 +63,14 @@ INSERT INTO public.statotodo VALUES ('NonCompletato');
 -- Data for Name: todo; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.todo VALUES (1, 'Finire report', '2025-06-12', '', '', 'Scrivere la relazione finale', 'CCFFCC', 2, 'NonCompletato', 'admin', 'Lavoro');
-INSERT INTO public.todo VALUES (2, 'Guardare serie', '2025-06-15', '', '', 'Finire Stranger Things', '99CCFF', 1, 'Completato', 'admin', 'TempoLibero');
 INSERT INTO public.todo VALUES (3, 'Ripassare Java', '2025-06-11', '', '', 'Prepararsi per il test Java', 'FF9999', 1, 'NonCompletato', 'pippo', 'Universita');
 INSERT INTO public.todo VALUES (4, 'Inviare CV', '2025-06-13', '', '', 'Candidarsi a stage', '66FF66', 1, 'Completato', 'pippo', 'Lavoro');
 INSERT INTO public.todo VALUES (5, 'Allenamento serale', '2025-06-10', '', '', 'Palestra alle 19', 'CCCCFF', 1, 'NonCompletato', 'pluto', 'TempoLibero');
 INSERT INTO public.todo VALUES (6, 'Studiare Basi di Dati', '2025-06-11', '', '', 'Ripassare i capitoli 4 e 5', 'FFDD99', 2, 'NonCompletato', 'admin', 'Universita');
+INSERT INTO public.todo VALUES (2, 'Guardare serie', '2025-06-15', '', '', 'Finire Stranger Things', '99CCFF', 1, 'Completato', 'admin', 'TempoLibero');
+INSERT INTO public.todo VALUES (1, 'Finire report', '2025-06-12', '', '', 'Scrivere la relazione finale', 'CCFFCC', 4, 'NonCompletato', 'admin', 'Lavoro');
+INSERT INTO public.todo VALUES (7, 'ciao', '2025-06-23', '', '', 'aa', 'FFFFFF', 2, 'NonCompletato', 'admin', 'Lavoro');
+INSERT INTO public.todo VALUES (8, 'ciao', '2025-07-22', '', '', 'ciao', 'FFFFFF', 1, 'NonCompletato', 'admin', 'Lavoro');
 
 
 --
@@ -84,7 +86,7 @@ INSERT INTO public.condivisione VALUES ('paperino', 3);
 -- Name: todo_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.todo_id_seq', 1, false);
+SELECT pg_catalog.setval('public.todo_id_seq', 8, true);
 
 
 --

@@ -71,6 +71,11 @@ public class Utente {
             this.toDoCondivisi.add(toDo);
         }
     }
-
+    
+    public void rimuoviToDoCondiviso(ToDo toDo) {
+    if (toDoCondivisi != null && toDoCondivisi.contains(toDo)) {
+        toDo.rimuoviCondivisionePer(this);
+    }
+  }
 }
 

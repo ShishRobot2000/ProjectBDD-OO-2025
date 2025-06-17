@@ -230,3 +230,7 @@ ALTER TABLE ONLY public.todo
 -- PostgreSQL database dump complete
 --
 
+-- Allinea la sequenza todo_id_seq al valore massimo attuale
+SELECT setval('todo_id_seq', (SELECT COALESCE(MAX(id), 1) FROM todo), true);
+
+

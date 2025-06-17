@@ -1,6 +1,9 @@
 package gui;
 
 import model.ToDo;
+import controller.Controller;
+import model.Utente;
+import model.TipoBacheca;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,10 +22,16 @@ public class ToDoFormDialog extends JDialog {
     private JButton btnCancel;
 
     private ToDo todo;
+    private Controller controller;
+    private Utente utente;
+    private TipoBacheca tipoBacheca;
 
-    public ToDoFormDialog(ToDo todo, boolean editable) {
+    public ToDoFormDialog(ToDo todo, boolean editable, Controller controller, Utente utente, TipoBacheca tipoBacheca) {
         this.todo = todo;
         this.editable = editable;
+        this.controller = controller;
+        this.utente = utente;
+        this.tipoBacheca = tipoBacheca;
 
         setTitle("Dettagli ToDo: " + todo.getTitolo());
         setModal(true);
@@ -96,7 +105,24 @@ public class ToDoFormDialog extends JDialog {
             dispose();
         });
 
-        if (editable) buttons.add(btnSave);
+        // Se non è in modalità modifica, aggiungi il pulsante Condividi
+        if (!editable) {
+            JButton btnCondividi = new JButton("Condividi");
+            btnCondividi.addActionListener(e -> {
+                String destinatario = JOptionPane.showInputDialog(this, "Inserisci il nome utente con cui vuoi condividere:");
+                if (destinatario != null && !destinatario.trim().isEmpty()) {
+                    boolean esito = controller.condividiToDo(destinatario.trim(), todo, utente.getUsername(), tipoBacheca);
+                    if (esito) {
+                        JOptionPane.showMessageDialog(this, "ToDo condiviso con " + destinatario);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Errore nella condivisione. Verifica se il ToDo è già condiviso o se l'utente esiste.");
+                    }
+                }
+            });
+            buttons.add(btnCondividi);
+        }
+
+        buttons.add(btnSave);
         buttons.add(btnCancel);
 
         getContentPane().add(content, BorderLayout.CENTER);
@@ -127,4 +153,3 @@ public class ToDoFormDialog extends JDialog {
         btnCancel.setText(editable ? "Annulla" : "Chiudi");
     }
 }
-

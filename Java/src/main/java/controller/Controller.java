@@ -41,7 +41,7 @@ public class Controller {
 
         ToDo nuovoToDo = new ToDo("", "", "", "", "", "FFFFFF");
 
-        ToDoFormDialog dialog = new ToDoFormDialog(nuovoToDo, true);
+        ToDoFormDialog dialog = new ToDoFormDialog(nuovoToDo, true, this, getUtenteCorrente(), bacheca.getTipo());
         dialog.setModal(true);
         dialog.pack();
         dialog.setLocationRelativeTo(board);
@@ -73,15 +73,33 @@ public class Controller {
                 JOptionPane.WARNING_MESSAGE);
 
         if (option == JOptionPane.YES_OPTION && bacheca != null) {
+            boolean success = false;
+            String prop = todo.getProprietario();
 
-            boolean success = toDoDAO.elimina(todo.getId());
+            if (prop != null && prop.equals(utenteCorrente.getUsername())) {
+                // Sei il proprietario
+                condivisioneDAO.eliminaCondivisioniCollegate(todo.getId());
+                success = toDoDAO.elimina(todo.getId());
+            } else if (prop != null) {
+                // Sei un utente condiviso
+                success = condivisioneDAO.rimuoviCondivisione(
+                        utenteCorrente.getUsername(),
+                        prop,
+                        bacheca.getTipo().name(),
+                        todo.getTitolo()
+                );
+
+                if (success) {
+                    utenteCorrente.rimuoviToDoCondiviso(todo);
+                }
+            }
 
             if (success) {
                 List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
                 bacheca.setToDoList(todos);
 
                 board.clearToDos();
-                todos.forEach(board::addToDo);
+                board.refresh();
             } else {
                 JOptionPane.showMessageDialog(board, "Errore durante l'eliminazione dal database.");
             }
@@ -89,7 +107,9 @@ public class Controller {
     }
 
 
-   public void loadUser(String username) {
+
+
+    public void loadUser(String username) {
     utenteCorrente = utenteDAO.findByUsername(username);
     if (utenteCorrente == null) {
         JOptionPane.showMessageDialog(null, "Utente non trovato.");
@@ -145,6 +165,9 @@ public class Controller {
                 JOptionPane.WARNING_MESSAGE);
         }
     }
+
+    List<ToDo> condivisi = toDoDAO.getToDoCondivisiCon(username);
+    utenteCorrente.setToDoCondivisi(condivisi);
 }
 
     public boolean login(String username, String password, MainFrame parent) {
@@ -160,7 +183,7 @@ public class Controller {
     }
 
     public void editToDo(BoardPanel board, ToDo todo, boolean isEditable, Runnable updateView) {
-        ToDoFormDialog dialog = new ToDoFormDialog(todo, isEditable);
+        ToDoFormDialog dialog = new ToDoFormDialog(todo, isEditable, this, getUtenteCorrente(), board.getBacheca().getTipo());
         dialog.setModal(true);
         dialog.pack();
         dialog.setLocationRelativeTo(board);
@@ -174,6 +197,8 @@ public class Controller {
             List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
             bacheca.setToDoList(todos);
             board.setBacheca(bacheca); // triggera il refresh della GUI
+
+            updateView.run(); // aggiorna la vista della board
         }
     }
 
@@ -257,13 +282,13 @@ public class Controller {
     }
 
     // Qui la modifica importante per accettare la richiesta aggiornando lo stato
-    public boolean accettaRichiesta(String usernameRichiedente, String proprietario, String tipoBacheca, String titoloToDo) {
-        return ((CondivisioneDAO) condivisioneDAO).aggiornaStatoRichiesta(usernameRichiedente, proprietario, tipoBacheca, titoloToDo, "ACCEPTED");
+    public boolean accettaRichiesta(String destinatario, String proprietario, String tipoBacheca, String titoloToDo) {
+        return ((CondivisioneDAO) condivisioneDAO).aggiornaStatoRichiesta(destinatario, proprietario, tipoBacheca, titoloToDo, "ACCEPTED");
     }
 
     // Qui rimuovi la richiesta semplicemente cancellando la riga o aggiornando stato a RIFIUTATO
-    public boolean rifiutaRichiesta(String usernameRichiedente, String proprietario, String tipoBacheca, String titoloToDo) {
-        return ((CondivisioneDAO) condivisioneDAO).aggiornaStatoRichiesta(usernameRichiedente, proprietario, tipoBacheca, titoloToDo, "REJECTED");
+    public boolean rifiutaRichiesta(String destinatario, String proprietario, String tipoBacheca, String titoloToDo) {
+        return ((CondivisioneDAO) condivisioneDAO).aggiornaStatoRichiesta(destinatario, proprietario, tipoBacheca, titoloToDo, "REJECTED");
     }
     
 
@@ -279,6 +304,8 @@ public class Controller {
     return b;
    }
 
+    public List<ToDo> getToDoCondivisi(String username) {
+        return ((ToDoDAO) toDoDAO).getToDoCondivisiCon(username);
+    }
+
 }
-
-

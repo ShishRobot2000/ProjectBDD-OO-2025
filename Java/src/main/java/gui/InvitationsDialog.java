@@ -15,10 +15,14 @@ public class InvitationsDialog extends JDialog {
     private JTable table;
     private DefaultTableModel tableModel;
 
-    public InvitationsDialog(JFrame parent, Utente currentUser) {
+    private DashboardPanel dashboard;
+
+
+    public InvitationsDialog(JFrame parent, Utente currentUser, DashboardPanel dashboard) {
         super(parent, "Richieste di Partecipazione", true);
         this.currentUser = currentUser;
         this.condivisioneDAO = new CondivisioneDAO();
+        this.dashboard = dashboard;
 
         setSize(500, 300);
         setLocationRelativeTo(parent);
@@ -73,15 +77,18 @@ public class InvitationsDialog extends JDialog {
             JOptionPane.showMessageDialog(this, "Seleziona una richiesta dalla tabella.", "Attenzione", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        String richiedente = (String) tableModel.getValueAt(selectedRow, 0);
+        String proprietario = (String) tableModel.getValueAt(selectedRow, 0);
         String tipoBacheca = (String) tableModel.getValueAt(selectedRow, 1);
         String titolo = (String) tableModel.getValueAt(selectedRow, 2);
 
-        boolean success = condivisioneDAO.aggiornaStatoRichiesta(richiedente, currentUser.getUsername(), tipoBacheca, titolo, newStatus);
+        boolean success = condivisioneDAO.aggiornaStatoRichiesta(currentUser.getUsername(), proprietario, tipoBacheca, titolo, newStatus);
 
         if (success) {
             JOptionPane.showMessageDialog(this, "Richiesta " + (newStatus.equals("ACCEPTED") ? "accettata" : "rifiutata") + " con successo.");
-            loadRequests(); // ricarica la lista aggiornata
+            if (dashboard != null) {
+                dashboard.loadUser(currentUser.getUsername());
+            }
+            loadRequests();
         } else {
             JOptionPane.showMessageDialog(this, "Errore durante l'aggiornamento della richiesta.", "Errore", JOptionPane.ERROR_MESSAGE);
         }

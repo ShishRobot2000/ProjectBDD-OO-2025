@@ -133,6 +133,51 @@ public class ToDoDAO implements IToDoDAO {
             return false;
         }
     }
+
+    public List<ToDo> getToDoCondivisiCon(String username) {
+        List<ToDo> lista = new ArrayList<>();
+        String sql = """
+        SELECT t.id, t.titolo, t.data_scadenza, t.url, t.immagine, t.descrizione,
+               t.colore, t.posizione, t.stato AS stato_todo, t.proprietario, t.tipo_bacheca
+        FROM condivisione c
+        JOIN todo t ON c.id_todo = t.id
+        WHERE c.username_utente = ? AND c.stato = 'ACCEPTED'
+        ORDER BY t.tipo_bacheca, t.posizione
+    """;
+
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ToDo todo = new ToDo(
+                        rs.getString("titolo"),
+                        rs.getString("data_scadenza"),
+                        rs.getString("url"),
+                        rs.getString("immagine"),
+                        rs.getString("descrizione"),
+                        rs.getString("colore")
+                );
+                todo.setId(rs.getInt("id"));
+                todo.setPosizione(rs.getInt("posizione"));
+                todo.setStato(StatoToDo.valueOf(rs.getString("stato_todo")));
+                todo.setProprietario(rs.getString("proprietario"));
+
+                // ⬇️ Imposta il tipo della bacheca
+                todo.setTipoBacheca(TipoBacheca.valueOf(rs.getString("tipo_bacheca")));
+
+                lista.add(todo);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+
 }
 
 

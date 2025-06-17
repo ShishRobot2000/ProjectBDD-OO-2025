@@ -3,7 +3,6 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-// Definisce la classe e gli attributi
 public class ToDo {
     private int id; // ID univoco del ToDo
     private String titolo;
@@ -14,9 +13,11 @@ public class ToDo {
     private String colore;
     private int posizione;
     private StatoToDo stato;
+    private String proprietario;
     private List<Utente> utentiCondivisi;
+    private TipoBacheca tipoBacheca;
 
-    // Costruttore per inizializzare gli attributi
+    // Costruttore principale
     public ToDo(String titolo, String dataDiScadenza, String url, String immagine,
                 String descrizione, String colore) {
         this.titolo = titolo;
@@ -29,6 +30,21 @@ public class ToDo {
         this.utentiCondivisi = new ArrayList<>();
         this.posizione = 0; // valore segnaposto, sarà sovrascritto dal DAO
         this.id = -1; // valore segnaposto, sarà impostato dal DAO o dal DB
+        this.proprietario = null; // sarà impostato dal DAO
+    }
+
+    // Costruttore semplificato
+    public ToDo(String titolo) {
+        this(titolo, "", "", "", "", "FFFFFF");
+    }
+
+    // Getter e setter
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitolo() {
@@ -95,6 +111,14 @@ public class ToDo {
         this.stato = stato;
     }
 
+    public String getProprietario() {
+        return proprietario;
+    }
+
+    public void setProprietario(String proprietario) {
+        this.proprietario = proprietario;
+    }
+
     public List<Utente> getUtentiCondivisi() {
         return utentiCondivisi;
     }
@@ -103,35 +127,10 @@ public class ToDo {
         this.utentiCondivisi = utentiCondivisi;
     }
 
-    public int getId() {
-        return id;
-    }
+    public TipoBacheca getTipoBacheca() { return tipoBacheca; }
+    public void setTipoBacheca(TipoBacheca tipoBacheca) { this.tipoBacheca = tipoBacheca; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        return "Titolo: " + titolo +
-                "\nData di Scadenza: " + dataDiScadenza +
-                "\nURL: " + (url != null ? url : "Nessun link") +
-                "\nImmagine: " + (immagine != null ? immagine : "Nessuna") +
-                "\nDescrizione: " + (descrizione != null ? descrizione : "Nessuna descrizione") +
-                "\nColore: " + (colore != null ? colore : "Nessun colore") +
-                "\nPosizione: " + (posizione != 0 ? posizione : "Nessuna posizione") +
-                "\nStato: " + stato +
-                "\nUtenti Condivisi: " + (utentiCondivisi != null && !utentiCondivisi.isEmpty()
-                ? utentiCondivisi.stream().map(Utente::getUsername).toList()
-                : "Nessuno");
-    }
-
-    // Aggiunta temporanea per l'utilizzo di ToDo in DashboardPanel
-    public ToDo(String titolo) {
-        this(titolo, "", "", "", "", "FFFFFF");
-    }
-
-    // Serve per condividere il ToDo con un utente
+    // Metodi funzionali
     public void condividiCon(Utente utente) {
         if (this.utentiCondivisi == null) {
             this.utentiCondivisi = new ArrayList<>();
@@ -148,6 +147,15 @@ public class ToDo {
         }
     }
 
+    public void rimuoviCondivisionePer(Utente utente) {
+        if (utentiCondivisi != null) {
+            utentiCondivisi.remove(utente);
+        }
+        if (utente.getToDoCondivisi() != null) {
+            utente.getToDoCondivisi().remove(this);
+        }
+    }
+
     public void segnaCompletato() {
         this.stato = StatoToDo.Completato;
     }
@@ -155,6 +163,24 @@ public class ToDo {
     public void segnaNonCompletato() {
         this.stato = StatoToDo.NonCompletato;
     }
+
+    @Override
+    public String toString() {
+        return "Titolo: " + titolo +
+                "\nData di Scadenza: " + dataDiScadenza +
+                "\nURL: " + (url != null ? url : "Nessun link") +
+                "\nImmagine: " + (immagine != null ? immagine : "Nessuna") +
+                "\nDescrizione: " + (descrizione != null ? descrizione : "Nessuna descrizione") +
+                "\nColore: " + (colore != null ? colore : "Nessun colore") +
+                "\nPosizione: " + (posizione != 0 ? posizione : "Nessuna posizione") +
+                "\nStato: " + stato +
+                "\nProprietario: " + (proprietario != null ? proprietario : "Non assegnato") +
+                "\nUtenti Condivisi: " + (utentiCondivisi != null && !utentiCondivisi.isEmpty()
+                ? utentiCondivisi.stream().map(Utente::getUsername).toList()
+                : "Nessuno");
+    }
+
 }
+
 
 

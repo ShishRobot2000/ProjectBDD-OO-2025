@@ -1,5 +1,5 @@
 import gui.MainFrame;
-import dao.InitDAO; // ora che è nel package dao
+import dao.InitDAO;
 
 import javax.swing.*;
 
