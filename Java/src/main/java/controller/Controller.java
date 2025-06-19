@@ -206,15 +206,26 @@ public class Controller {
         String tipoString = tipo.name();
         String titolo = todo.getTitolo();
 
-        if (destinatario.equals(usernameMittente)) {
+        // Prevenzione condivisione con se stessi
+        if (destinatario.equalsIgnoreCase(usernameMittente)) {
             JOptionPane.showMessageDialog(null, "Non puoi condividere un ToDo con te stesso.");
             return false;
         }
 
-        if (condivisioneDAO.esisteCondivisione(destinatario, prop, tipoString, titolo)) {
+        // Verifica se l'utente destinatario esiste
+        UtenteDAO utenteDAO = new UtenteDAO();
+        if (!utenteDAO.esisteUtente(destinatario)) {
+            JOptionPane.showMessageDialog(null, "L'utente destinatario non esiste.");
             return false;
         }
 
+        // Verifica duplicati
+        if (condivisioneDAO.esisteCondivisione(destinatario, prop, tipoString, titolo)) {
+            JOptionPane.showMessageDialog(null, "Hai già condiviso questo ToDo con questo utente.");
+            return false;
+        }
+
+        // Condividi
         boolean success = condivisioneDAO.condividi(destinatario, prop, tipoString, titolo);
         if (success) {
             JOptionPane.showMessageDialog(null, "ToDo condiviso con successo.");

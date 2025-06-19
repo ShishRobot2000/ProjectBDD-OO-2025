@@ -235,8 +235,6 @@ public class ToDoFormDialog extends JDialog {
 
                     if (esito) {
                         JOptionPane.showMessageDialog(this, "ToDo condiviso con " + destinatario);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Errore nella condivisione. Verifica se il ToDo è già condiviso o se l'utente esiste.");
                     }
                 }
             });

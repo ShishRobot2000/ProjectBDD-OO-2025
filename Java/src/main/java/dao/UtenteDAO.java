@@ -53,8 +53,6 @@ public class UtenteDAO implements IUtenteDAO {
     public Utente findByUsername(String username) {
         String sql = "SELECT * FROM utente WHERE username = ?";
 
-        System.out.println("[DEBUG] Cerco utente: " + username + "'");
-
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -66,12 +64,8 @@ public class UtenteDAO implements IUtenteDAO {
             
             if (rs.next()) {
                 String foundUser = rs.getString("username");
-                System.out.println("[DEBUG] Utente trovato: " + foundUser);
                 return new Utente(foundUser, rs.getString("password"));
-            } else {
-                System.out.println("[DEBUG] Nessun utente trovato.");
             }
-            
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -94,6 +88,25 @@ public class UtenteDAO implements IUtenteDAO {
             return false;
         }
     }
+
+    public boolean esisteUtente(String username) {
+        String sql = "SELECT 1 FROM utente WHERE username = ?";
+
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username.trim());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next(); // restituisce true se almeno una riga è trovata
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
 
 
