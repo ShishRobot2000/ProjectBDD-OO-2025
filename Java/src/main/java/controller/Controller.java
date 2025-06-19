@@ -247,16 +247,26 @@ public class Controller {
 
 
     public boolean register(String username, String password) {
-       username = username.trim();
+        username = username.trim();
 
-       if (utenteDAO.findByUsername(username) != null) {
-          return false;
-      } else {
-          Utente nuovoUtente = new Utente(username, password);
-          boolean result = utenteDAO.salvaUtente(nuovoUtente);
-          return result;
-     }
+        if (utenteDAO.findByUsername(username) != null) {
+            return false;
+        } else {
+            Utente nuovoUtente = new Utente(username, password);
+            boolean result = utenteDAO.salvaUtente(nuovoUtente);
+
+            if (result) {
+                // Usa salvaBacheca con il proprietario separato
+                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.Universita, "Bacheca Università"), username);
+                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.Lavoro, "Bacheca Lavoro"), username);
+                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.TempoLibero, "Bacheca Tempo Libero"), username);
+            }
+
+            return result;
+        }
     }
+
+
 
     // Carica l'utente e lo memorizza 
     public Utente getUtenteCorrente() {
