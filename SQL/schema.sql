@@ -40,7 +40,9 @@ ALTER TABLE public.bacheca OWNER TO postgres;
 
 CREATE TABLE public.condivisione (
     username_utente character varying(100) NOT NULL,
-    id_todo integer NOT NULL
+    id_todo integer NOT NULL,
+    stato character varying(20) DEFAULT 'PENDING'::character varying NOT NULL,
+    CONSTRAINT stato_condivisione_check CHECK (((stato)::text = ANY ((ARRAY['PENDING'::character varying, 'ACCEPTED'::character varying])::text[])))
 );
 
 
@@ -77,7 +79,7 @@ CREATE TABLE public.todo (
     titolo character varying(100) NOT NULL,
     data_scadenza character varying(20),
     url text,
-    immagine text,
+    immagine bytea,
     descrizione text,
     colore character varying(7),
     posizione integer,
@@ -229,8 +231,4 @@ ALTER TABLE ONLY public.todo
 --
 -- PostgreSQL database dump complete
 --
-
--- Allinea la sequenza todo_id_seq al valore massimo attuale
-SELECT setval('todo_id_seq', (SELECT COALESCE(MAX(id), 1) FROM todo), true);
-
 

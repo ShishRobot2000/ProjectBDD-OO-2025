@@ -201,7 +201,8 @@ public class CondivisioneDAO implements ICondivisioneDAO {
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idToDo);
-            return stmt.executeUpdate() > 0;
+            stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

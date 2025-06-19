@@ -37,14 +37,14 @@ public class ToDoDAO implements IToDoDAO {
                 stmtInsert.setString(4, todo.getColore());
                 stmtInsert.setString(5, todo.getStato().name());
                 stmtInsert.setString(6, todo.getUrl());
-                stmtInsert.setString(7, todo.getImmagine());
+                stmtInsert.setBytes(7, todo.getImmagine());
                 stmtInsert.setInt(8, 1);
                 stmtInsert.setString(9, proprietario);
                 stmtInsert.setString(10, tipoBacheca.name());
 
                 ResultSet rs = stmtInsert.executeQuery();
                 if (rs.next()) {
-                    todo.setId(rs.getInt("id")); // assegna l'ID generato
+                    todo.setId(rs.getInt("id"));
                 }
             }
 
@@ -74,13 +74,15 @@ public class ToDoDAO implements IToDoDAO {
                         rs.getString("titolo"),
                         rs.getString("data_scadenza"),
                         rs.getString("url"),
-                        rs.getString("immagine"),
+                        rs.getBytes("immagine"),
                         rs.getString("descrizione"),
                         rs.getString("colore")
                 );
                 todo.setId(rs.getInt("id"));
                 todo.setStato(StatoToDo.valueOf(rs.getString("stato")));
                 todo.setPosizione(rs.getInt("posizione"));
+                todo.setProprietario(proprietario);
+                todo.setTipoBacheca(tipoBacheca);
 
                 lista.add(todo);
             }
@@ -106,7 +108,7 @@ public class ToDoDAO implements IToDoDAO {
             stmt.setString(4, todo.getColore());
             stmt.setString(5, todo.getStato().name());
             stmt.setString(6, todo.getUrl());
-            stmt.setString(7, todo.getImmagine());
+            stmt.setBytes(7, todo.getImmagine());
             stmt.setInt(8, todo.getPosizione());
             stmt.setInt(9, todo.getId());
 
@@ -134,16 +136,17 @@ public class ToDoDAO implements IToDoDAO {
         }
     }
 
+    @Override
     public List<ToDo> getToDoCondivisiCon(String username) {
         List<ToDo> lista = new ArrayList<>();
         String sql = """
-        SELECT t.id, t.titolo, t.data_scadenza, t.url, t.immagine, t.descrizione,
-               t.colore, t.posizione, t.stato AS stato_todo, t.proprietario, t.tipo_bacheca
-        FROM condivisione c
-        JOIN todo t ON c.id_todo = t.id
-        WHERE c.username_utente = ? AND c.stato = 'ACCEPTED'
-        ORDER BY t.tipo_bacheca, t.posizione
-    """;
+            SELECT t.id, t.titolo, t.data_scadenza, t.url, t.immagine, t.descrizione,
+                   t.colore, t.posizione, t.stato AS stato_todo, t.proprietario, t.tipo_bacheca
+            FROM condivisione c
+            JOIN todo t ON c.id_todo = t.id
+            WHERE c.username_utente = ? AND c.stato = 'ACCEPTED'
+            ORDER BY t.tipo_bacheca, t.posizione
+        """;
 
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -156,7 +159,7 @@ public class ToDoDAO implements IToDoDAO {
                         rs.getString("titolo"),
                         rs.getString("data_scadenza"),
                         rs.getString("url"),
-                        rs.getString("immagine"),
+                        rs.getBytes("immagine"),
                         rs.getString("descrizione"),
                         rs.getString("colore")
                 );
@@ -164,8 +167,6 @@ public class ToDoDAO implements IToDoDAO {
                 todo.setPosizione(rs.getInt("posizione"));
                 todo.setStato(StatoToDo.valueOf(rs.getString("stato_todo")));
                 todo.setProprietario(rs.getString("proprietario"));
-
-                // ⬇️ Imposta il tipo della bacheca
                 todo.setTipoBacheca(TipoBacheca.valueOf(rs.getString("tipo_bacheca")));
 
                 lista.add(todo);
@@ -177,7 +178,6 @@ public class ToDoDAO implements IToDoDAO {
 
         return lista;
     }
-
 }
 
 

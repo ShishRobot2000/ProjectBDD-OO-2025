@@ -30,8 +30,6 @@ public class InvitationsDialog extends JDialog {
         initUI();
 
         loadRequests();
-
-        setVisible(true);
     }
 
     private void initUI() {

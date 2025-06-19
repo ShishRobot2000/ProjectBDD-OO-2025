@@ -107,11 +107,19 @@ public class ToDoCardPanel extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2 && !isCondiviso) {
-                    openEditDialog(false);
+                if (e.getClickCount() == 2) {
+                    ToDoFormDialog dialog = new ToDoFormDialog(
+                            todo,
+                            false, // modalità sola lettura
+                            controller,
+                            utenteCorrente,
+                            todo.getTipoBacheca()
+                    );
+                    dialog.setVisible(true);
                 }
             }
         });
+
     }
 
     private void openEditDialog(boolean isEditable) {

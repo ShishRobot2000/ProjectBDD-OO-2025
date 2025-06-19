@@ -39,7 +39,7 @@ public class Controller {
     public void addNewToDo(BoardPanel board) {
         Bacheca bacheca = board.getBacheca();
 
-        ToDo nuovoToDo = new ToDo("", "", "", "", "", "FFFFFF");
+        ToDo nuovoToDo = new ToDo("", "", "", null, "", "FFFFFF");
 
         ToDoFormDialog dialog = new ToDoFormDialog(nuovoToDo, true, this, getUtenteCorrente(), bacheca.getTipo());
         dialog.setModal(true);
@@ -77,8 +77,7 @@ public class Controller {
             String prop = todo.getProprietario();
 
             if (prop != null && prop.equals(utenteCorrente.getUsername())) {
-                // Sei il proprietario
-                condivisioneDAO.eliminaCondivisioniCollegate(todo.getId());
+                boolean condivisioniEliminate = condivisioneDAO.eliminaCondivisioniCollegate(todo.getId());
                 success = toDoDAO.elimina(todo.getId());
             } else if (prop != null) {
                 // Sei un utente condiviso
@@ -93,7 +92,6 @@ public class Controller {
                     utenteCorrente.rimuoviToDoCondiviso(todo);
                 }
             }
-
             if (success) {
                 List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
                 bacheca.setToDoList(todos);
@@ -105,6 +103,7 @@ public class Controller {
             }
         }
     }
+
 
 
 
@@ -203,8 +202,30 @@ public class Controller {
     }
 
     public boolean condividiToDo(String destinatario, ToDo todo, String prop, TipoBacheca tipo) {
-        return condivisioneDAO.condividi(destinatario, prop, tipo.name(), todo.getTitolo());
+        String usernameMittente = utenteCorrente.getUsername();
+        String tipoString = tipo.name();
+        String titolo = todo.getTitolo();
+
+        if (destinatario.equals(usernameMittente)) {
+            JOptionPane.showMessageDialog(null, "Non puoi condividere un ToDo con te stesso.");
+            return false;
+        }
+
+        if (condivisioneDAO.esisteCondivisione(destinatario, prop, tipoString, titolo)) {
+            JOptionPane.showMessageDialog(null, "Hai già condiviso questo ToDo con questo utente.");
+            return false;
+        }
+
+        boolean success = condivisioneDAO.condividi(destinatario, prop, tipoString, titolo);
+        if (success) {
+            JOptionPane.showMessageDialog(null, "ToDo condiviso con successo.");
+        } else {
+            JOptionPane.showMessageDialog(null, "Errore durante la condivisione.");
+        }
+
+        return success;
     }
+
 
     public boolean isToDoCondiviso(String utente, ToDo todo, String prop, TipoBacheca tipo) {
         return condivisioneDAO.esisteCondivisione(utente, prop, tipo.name(), todo.getTitolo());
@@ -216,19 +237,13 @@ public class Controller {
 
 
     public boolean register(String username, String password) {
-
-       System.out.println("[DEBUG] Provo a registrare: '" + username + "'");
-
        username = username.trim();
 
        if (utenteDAO.findByUsername(username) != null) {
-          System.out.println("[DEBUG] Registrazione fallita: utente esiste già");
           return false;
       } else {
-          System.out.println("[DEBUG] Utente nuovo: procedo alla registrazione");
           Utente nuovoUtente = new Utente(username, password);
           boolean result = utenteDAO.salvaUtente(nuovoUtente);
-          System.out.println("[DEBUG] Salvataggio completato? " + result);
           return result;
      }
     }
