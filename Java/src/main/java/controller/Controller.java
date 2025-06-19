@@ -212,7 +212,6 @@ public class Controller {
         }
 
         if (condivisioneDAO.esisteCondivisione(destinatario, prop, tipoString, titolo)) {
-            JOptionPane.showMessageDialog(null, "Hai già condiviso questo ToDo con questo utente.");
             return false;
         }
 
