@@ -51,7 +51,9 @@ public class ToDoCardPanel extends JPanel {
         boolean isCondiviso = utenteCorrente.getToDoCondivisi().contains(todo);
 
         JLabel titolo = new JLabel("<html><div style='text-align: center;'><b>" + todo.getTitolo() +
-                "</b><br/>Scadenza: " + todo.getDataDiScadenza() + "</div></html>");
+                "</b><br/>Scadenza: " + todo.getDataDiScadenza() +
+                (utenteCorrente.getToDoCondivisi().contains(todo) ? "<br/><i>di " + todo.getProprietario() + "</i>" : "") +
+                "</div></html>");
         titolo.setHorizontalAlignment(SwingConstants.CENTER);
         titolo.setFont(new Font("SansSerif", Font.PLAIN, 14));
         add(titolo, BorderLayout.CENTER);
