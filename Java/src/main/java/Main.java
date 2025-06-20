@@ -11,7 +11,7 @@ public class Main {
 
     /**
      * Metodo principale di avvio dell'applicazione.
-     * <p>
+     *
      * Inizializza i tipi di bacheca e gli stati dei ToDo se non sono già presenti nel database,
      * poi avvia l'interfaccia grafica principale (MainFrame) usando il thread dell'Event Dispatch Thread di Swing.
      *

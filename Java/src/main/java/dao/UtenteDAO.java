@@ -100,19 +100,57 @@ public class UtenteDAO implements IUtenteDAO {
      */
     @Override
     public boolean eliminaUtente(String username) {
-        String sql = "DELETE FROM utente WHERE username = ?";
+        try (Connection conn = ConnessioneDatabase.getConnection()) {
+            conn.setAutoCommit(false); // Inizio transazione
 
-        try (Connection conn = ConnessioneDatabase.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // 1. Elimina condivisioni ricevute
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM condivisione WHERE destinatario = ?")) {
+                stmt.setString(1, username);
+                stmt.executeUpdate();
+            }
 
-            stmt.setString(1, username);
-            return stmt.executeUpdate() > 0;
+            // 2. Elimina condivisioni fatte
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM condivisione WHERE proprietario = ?")) {
+                stmt.setString(1, username);
+                stmt.executeUpdate();
+            }
+
+            // 3. Elimina todo dell'utente
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM todo WHERE proprietario = ?")) {
+                stmt.setString(1, username);
+                stmt.executeUpdate();
+            }
+
+            // 4. Elimina bacheche dell'utente
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM bacheca WHERE proprietario = ?")) {
+                stmt.setString(1, username);
+                stmt.executeUpdate();
+            }
+
+            // 5. Elimina l’utente
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM utente WHERE username = ?")) {
+                stmt.setString(1, username);
+                boolean result = stmt.executeUpdate() > 0;
+                conn.commit(); // Commit transazione
+                return result;
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                ConnessioneDatabase.getConnection().rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
             return false;
         }
     }
+
 
     /**
      * Verifica se un utente esiste già nel database.
