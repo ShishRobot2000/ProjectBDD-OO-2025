@@ -6,8 +6,19 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
 
+/**
+ * Classe di utilità per l'inizializzazione del database.
+ * Inserisce i valori predefiniti per le tabelle `tipobacheca` e `statotodo`,
+ * se non già presenti.
+ */
 public class InitDAO {
 
+    /**
+     * Inserisce i tipi di bacheca e gli stati dei ToDo nel database,
+     * solo se non sono già presenti.
+     *
+     * Utilizza la clausola `ON CONFLICT DO NOTHING` per evitare duplicati.
+     */
     public static void inserisciTipiEStati() {
         try (Connection conn = ConnessioneDatabase.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -33,5 +44,6 @@ public class InitDAO {
         }
     }
 }
+
 
 

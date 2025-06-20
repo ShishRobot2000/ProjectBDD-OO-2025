@@ -11,7 +11,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Controller principale che gestisce la logica dell'applicazione ToDo.
+ * Si occupa delle operazioni CRUD sui ToDo, del caricamento utente e della gestione delle bacheche.
+ */
 public class Controller {
 
     private final BoardPanel universitaBoard;
@@ -23,9 +26,16 @@ public class Controller {
     private final IToDoDAO toDoDAO;
     private final ICondivisioneDAO condivisioneDAO = new CondivisioneDAO();
 
-
     private Utente utenteCorrente;
 
+    /**
+     * Costruttore del Controller.
+     * Inizializza i pannelli bacheca e i DAO per l'accesso ai dati.
+     *
+     * @param universitaBoard pannello per la bacheca Università
+     * @param lavoroBoard pannello per la bacheca Lavoro
+     * @param tempoLiberoBoard pannello per la bacheca Tempo Libero
+     */
     public Controller(BoardPanel universitaBoard, BoardPanel lavoroBoard, BoardPanel tempoLiberoBoard) {
         this.universitaBoard = universitaBoard;
         this.lavoroBoard = lavoroBoard;
@@ -36,6 +46,11 @@ public class Controller {
         this.toDoDAO = new ToDoDAO();
     }
 
+    /**
+     * Aggiunge un nuovo ToDo alla bacheca selezionata.
+     *
+     * @param board pannello della bacheca dove aggiungere il ToDo
+     */
     public void addNewToDo(BoardPanel board) {
         Bacheca bacheca = board.getBacheca();
 
@@ -49,10 +64,7 @@ public class Controller {
 
         if (dialog.isConfirmed()) {
             if (!nuovoToDo.getTitolo().isEmpty()) {
-                // Salva nel database: posizione gestita internamente dal DAO
                 toDoDAO.salva(nuovoToDo, utenteCorrente.getUsername(), bacheca.getTipo());
-
-                // Ricarica ToDo aggiornati
                 board.clearToDos();
                 List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
                 bacheca.setToDoList(todos);
@@ -63,6 +75,13 @@ public class Controller {
         }
     }
 
+    /**
+     * Rimuove un ToDo dalla bacheca. Se l'utente è il proprietario viene eliminato completamente,
+     * altrimenti viene rimossa solo la condivisione.
+     *
+     * @param board pannello della bacheca
+     * @param todo ToDo da rimuovere
+     */
     public void removeToDo(BoardPanel board, ToDo todo) {
         Bacheca bacheca = board.getBacheca();
 
@@ -80,7 +99,6 @@ public class Controller {
                 boolean condivisioniEliminate = condivisioneDAO.eliminaCondivisioniCollegate(todo.getId());
                 success = toDoDAO.elimina(todo.getId());
             } else if (prop != null) {
-                // Sei un utente condiviso
                 success = condivisioneDAO.rimuoviCondivisione(
                         utenteCorrente.getUsername(),
                         prop,
@@ -95,7 +113,6 @@ public class Controller {
             if (success) {
                 List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
                 bacheca.setToDoList(todos);
-
                 board.clearToDos();
                 board.refresh();
             } else {
@@ -104,71 +121,81 @@ public class Controller {
         }
     }
 
-
-
-
-
+    /**
+     * Carica l'utente corrente e tutte le sue bacheche e ToDo.
+     * Mostra avvisi per eventuali ToDo scaduti non completati.
+     *
+     * @param username nome utente da caricare
+     */
     public void loadUser(String username) {
-    utenteCorrente = utenteDAO.findByUsername(username);
-    if (utenteCorrente == null) {
-        JOptionPane.showMessageDialog(null, "Utente non trovato.");
-        return;
-    }
+        utenteCorrente = utenteDAO.findByUsername(username);
+        if (utenteCorrente == null) {
+            JOptionPane.showMessageDialog(null, "Utente non trovato.");
+            return;
+        }
 
-    universitaBoard.setBacheca(null);
-    lavoroBoard.setBacheca(null);
-    tempoLiberoBoard.setBacheca(null);
+        universitaBoard.setBacheca(null);
+        lavoroBoard.setBacheca(null);
+        tempoLiberoBoard.setBacheca(null);
 
-    LocalDate oggi = LocalDate.now();
+        LocalDate oggi = LocalDate.now();
 
-    for (TipoBacheca tipo : TipoBacheca.values()) {
-        Bacheca b = bachecaDAO.findByTipo(username, tipo);
-        if (b == null) continue;
+        for (TipoBacheca tipo : TipoBacheca.values()) {
+            Bacheca b = bachecaDAO.findByTipo(username, tipo);
+            if (b == null) continue;
 
-        List<ToDo> todos = toDoDAO.trovaPerBacheca(username, tipo);
-        StringBuilder avvisi = new StringBuilder();
+            List<ToDo> todos = toDoDAO.trovaPerBacheca(username, tipo);
+            StringBuilder avvisi = new StringBuilder();
 
-        for (ToDo todo : todos) {
-            if (todo.getDataDiScadenza() != null && !todo.getDataDiScadenza().isEmpty()) {
-                try {
-                    LocalDate dataScadenza = LocalDate.parse(todo.getDataDiScadenza());
-                    if (!dataScadenza.isAfter(oggi)) {
-                        if (todo.getStato() == StatoToDo.Completato) {
-                            todo.setStato(StatoToDo.NonCompletato);
-                            toDoDAO.aggiorna(todo, username, tipo);
+            for (ToDo todo : todos) {
+                if (todo.getDataDiScadenza() != null && !todo.getDataDiScadenza().isEmpty()) {
+                    try {
+                        LocalDate dataScadenza = LocalDate.parse(todo.getDataDiScadenza());
+                        if (!dataScadenza.isAfter(oggi)) {
+                            if (todo.getStato() == StatoToDo.Completato) {
+                                todo.setStato(StatoToDo.NonCompletato);
+                                toDoDAO.aggiorna(todo, username, tipo);
+                            }
+                            if (todo.getStato() == StatoToDo.NonCompletato) {
+                                avvisi.append("- ").append(todo.getTitolo()).append("\n");
+                            }
                         }
-                        if (todo.getStato() == StatoToDo.NonCompletato) {
-                            avvisi.append("- ").append(todo.getTitolo()).append("\n");
-                        }
+                    } catch (Exception e) {
+                        System.err.println("Errore parsing data: " + todo.getDataDiScadenza());
                     }
-                } catch (Exception e) {
-                    System.err.println("Errore parsing data: " + todo.getDataDiScadenza());
                 }
+            }
+
+            b.setToDoList(todos);
+
+            BoardPanel target = switch (tipo) {
+                case Universita -> universitaBoard;
+                case Lavoro -> lavoroBoard;
+                case TempoLibero -> tempoLiberoBoard;
+            };
+
+            target.setBacheca(b);
+
+            if (!avvisi.isEmpty()) {
+                JOptionPane.showMessageDialog(null,
+                        "Attenzione! I seguenti ToDo nella bacheca \"" + tipo.name() + "\" sono scaduti e non completati:\n\n" + avvisi,
+                        "ToDo Scaduti",
+                        JOptionPane.WARNING_MESSAGE);
             }
         }
 
-        b.setToDoList(todos);
-
-        BoardPanel target = switch (tipo) {
-            case Universita -> universitaBoard;
-            case Lavoro -> lavoroBoard;
-            case TempoLibero -> tempoLiberoBoard;
-        };
-
-        target.setBacheca(b);
-
-        if (!avvisi.isEmpty()) {
-            JOptionPane.showMessageDialog(null,
-                "Attenzione! I seguenti ToDo nella bacheca \"" + tipo.name() + "\" sono scaduti e non completati:\n\n" + avvisi,
-                "ToDo Scaduti",
-                JOptionPane.WARNING_MESSAGE);
-        }
+        List<ToDo> condivisi = toDoDAO.getToDoCondivisiCon(username);
+        utenteCorrente.setToDoCondivisi(condivisi);
     }
 
-    List<ToDo> condivisi = toDoDAO.getToDoCondivisiCon(username);
-    utenteCorrente.setToDoCondivisi(condivisi);
-}
-
+    /**
+     * Effettua il login dell'utente verificando username e password.
+     *
+     * @param username nome utente
+     * @param password password utente
+     * @param parent riferimento alla finestra principale
+     * @return true se il login ha successo, false altrimenti
+     */
     public boolean login(String username, String password, MainFrame parent) {
         Utente utente = utenteDAO.findByUsernameAndPassword(username, password);
         if (utente != null) {
@@ -181,6 +208,14 @@ public class Controller {
         }
     }
 
+    /**
+     * Modifica un ToDo già esistente.
+     *
+     * @param board pannello della bacheca
+     * @param todo ToDo da modificare
+     * @param isEditable true se il ToDo è modificabile
+     * @param updateView funzione da eseguire per aggiornare la GUI
+     */
     public void editToDo(BoardPanel board, ToDo todo, boolean isEditable, Runnable updateView) {
         ToDoFormDialog dialog = new ToDoFormDialog(todo, isEditable, this, getUtenteCorrente(), board.getBacheca().getTipo());
         dialog.setModal(true);
@@ -191,41 +226,42 @@ public class Controller {
         if (dialog.isConfirmed()) {
             Bacheca bacheca = board.getBacheca();
             toDoDAO.aggiorna(todo, utenteCorrente.getUsername(), bacheca.getTipo());
-
-            // Ricarica tutti i ToDo della bacheca
             List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
             bacheca.setToDoList(todos);
-            board.setBacheca(bacheca); // triggera il refresh della GUI
-
-            updateView.run(); // aggiorna la vista della board
+            board.setBacheca(bacheca);
+            updateView.run();
         }
     }
-
+    /**
+     * Condivide un ToDo con un altro utente.
+     *
+     * @param destinatario username del destinatario
+     * @param todo ToDo da condividere
+     * @param prop proprietario del ToDo
+     * @param tipo tipo della bacheca
+     * @return true se la condivisione è andata a buon fine, false altrimenti
+     */
     public boolean condividiToDo(String destinatario, ToDo todo, String prop, TipoBacheca tipo) {
         String usernameMittente = utenteCorrente.getUsername();
         String tipoString = tipo.name();
         String titolo = todo.getTitolo();
 
-        // Prevenzione condivisione con se stessi
         if (destinatario.equalsIgnoreCase(usernameMittente)) {
             JOptionPane.showMessageDialog(null, "Non puoi condividere un ToDo con te stesso.");
             return false;
         }
 
-        // Verifica se l'utente destinatario esiste
         UtenteDAO utenteDAO = new UtenteDAO();
         if (!utenteDAO.esisteUtente(destinatario)) {
             JOptionPane.showMessageDialog(null, "L'utente destinatario non esiste.");
             return false;
         }
 
-        // Verifica duplicati
         if (condivisioneDAO.esisteCondivisione(destinatario, prop, tipoString, titolo)) {
             JOptionPane.showMessageDialog(null, "Hai già condiviso questo ToDo con questo utente.");
             return false;
         }
 
-        // Condividi
         boolean success = condivisioneDAO.condividi(destinatario, prop, tipoString, titolo);
         if (success) {
             JOptionPane.showMessageDialog(null, "ToDo condiviso con successo.");
@@ -236,16 +272,39 @@ public class Controller {
         return success;
     }
 
-
+    /**
+     * Verifica se un ToDo è stato condiviso con un utente.
+     *
+     * @param utente destinatario
+     * @param todo ToDo in questione
+     * @param prop proprietario
+     * @param tipo tipo di bacheca
+     * @return true se esiste la condivisione
+     */
     public boolean isToDoCondiviso(String utente, ToDo todo, String prop, TipoBacheca tipo) {
         return condivisioneDAO.esisteCondivisione(utente, prop, tipo.name(), todo.getTitolo());
     }
 
+    /**
+     * Rimuove una condivisione esistente per un utente.
+     *
+     * @param utente destinatario
+     * @param todo ToDo condiviso
+     * @param prop proprietario
+     * @param tipo tipo di bacheca
+     * @return true se la rimozione è andata a buon fine
+     */
     public boolean rimuoviCondivisione(String utente, ToDo todo, String prop, TipoBacheca tipo) {
         return condivisioneDAO.rimuoviCondivisione(utente, prop, tipo.name(), todo.getTitolo());
     }
 
-
+    /**
+     * Registra un nuovo utente nel sistema.
+     *
+     * @param username nome utente
+     * @param password password
+     * @return true se la registrazione ha successo, false se l'utente esiste già
+     */
     public boolean register(String username, String password) {
         username = username.trim();
 
@@ -256,7 +315,6 @@ public class Controller {
             boolean result = utenteDAO.salvaUtente(nuovoUtente);
 
             if (result) {
-                // Usa salvaBacheca con il proprietario separato
                 bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.Universita, "Bacheca Università"), username);
                 bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.Lavoro, "Bacheca Lavoro"), username);
                 bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.TempoLibero, "Bacheca Tempo Libero"), username);
@@ -266,29 +324,37 @@ public class Controller {
         }
     }
 
-
-
-    // Carica l'utente e lo memorizza 
+    /**
+     * Restituisce l'utente attualmente loggato.
+     *
+     * @return utente corrente
+     */
     public Utente getUtenteCorrente() {
-       return utenteCorrente;
-   }
-   
+        return utenteCorrente;
+    }
 
-   // Resetta l'utente corrente e svuota le bacheche, così il prossimo utente non vedrà i dati dell'utente precedente
-   public void logout() {
-    utenteCorrente = null;
+    /**
+     * Esegue il logout dell'utente corrente e resetta le bacheche.
+     */
+    public void logout() {
+        utenteCorrente = null;
 
-    universitaBoard.setBacheca(null);
-    universitaBoard.clearToDos();
+        universitaBoard.setBacheca(null);
+        universitaBoard.clearToDos();
 
-    lavoroBoard.setBacheca(null);
-    lavoroBoard.clearToDos();
+        lavoroBoard.setBacheca(null);
+        lavoroBoard.clearToDos();
 
-    tempoLiberoBoard.setBacheca(null);
-    tempoLiberoBoard.clearToDos();
-  }
+        tempoLiberoBoard.setBacheca(null);
+        tempoLiberoBoard.clearToDos();
+    }
 
-   // Metodo per il toggle dello stato di completamento di un ToDo
+    /**
+     * Inverte lo stato di completamento di un ToDo e aggiorna il database e la GUI.
+     *
+     * @param board pannello contenente il ToDo
+     * @param todo ToDo da modificare
+     */
     public void toggleCompletamento(BoardPanel board, ToDo todo) {
         if (todo.getStato() == StatoToDo.Completato) {
             todo.setStato(StatoToDo.NonCompletato);
@@ -296,51 +362,74 @@ public class Controller {
             todo.setStato(StatoToDo.Completato);
         }
 
-    
-
-        // Aggiorna il ToDo nel database
         Bacheca bacheca = board.getBacheca();
         toDoDAO.aggiorna(todo, utenteCorrente.getUsername(), bacheca.getTipo());
 
-        // Ricarica tutti i ToDo e aggiorna la GUI
         List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
         bacheca.setToDoList(todos);
         board.setBacheca(bacheca);
     }
 
-
-    // Metodo per ottenere le richieste pendenti per l'utente corrente
+    /**
+     * Restituisce l'elenco delle richieste pendenti per l'utente corrente.
+     *
+     * @return lista di array contenenti i dati delle richieste
+     */
     public List<String[]> getRichiestePendenti() {
         if (utenteCorrente == null) return new ArrayList<>();
-        // recupera da DAO (implementazione DAO deve ritornare le richieste)
         return ((CondivisioneDAO) condivisioneDAO).getRichiestePendentiPerUtente(utenteCorrente.getUsername());
     }
 
-    // Qui la modifica importante per accettare la richiesta aggiornando lo stato
+    /**
+     * Accetta una richiesta di condivisione, aggiornando il suo stato a "ACCEPTED".
+     *
+     * @param destinatario destinatario della condivisione
+     * @param proprietario proprietario del ToDo
+     * @param tipoBacheca tipo della bacheca
+     * @param titoloToDo titolo del ToDo condiviso
+     * @return true se l'aggiornamento ha avuto successo
+     */
     public boolean accettaRichiesta(String destinatario, String proprietario, String tipoBacheca, String titoloToDo) {
         return ((CondivisioneDAO) condivisioneDAO).aggiornaStatoRichiesta(destinatario, proprietario, tipoBacheca, titoloToDo, "ACCEPTED");
     }
 
-    // Qui rimuovi la richiesta semplicemente cancellando la riga o aggiornando stato a RIFIUTATO
+    /**
+     * Rifiuta una richiesta di condivisione, aggiornando il suo stato a "REJECTED".
+     *
+     * @param destinatario destinatario della condivisione
+     * @param proprietario proprietario del ToDo
+     * @param tipoBacheca tipo della bacheca
+     * @param titoloToDo titolo del ToDo condiviso
+     * @return true se l'aggiornamento ha avuto successo
+     */
     public boolean rifiutaRichiesta(String destinatario, String proprietario, String tipoBacheca, String titoloToDo) {
         return ((CondivisioneDAO) condivisioneDAO).aggiornaStatoRichiesta(destinatario, proprietario, tipoBacheca, titoloToDo, "REJECTED");
     }
-    
 
+    /**
+     * Carica la bacheca di un dato tipo per l'utente corrente, inclusi i ToDo.
+     *
+     * @param tipo tipo di bacheca
+     * @return bacheca caricata, oppure null se non trovata
+     */
     public Bacheca getBachecaPerTipo(TipoBacheca tipo) {
-    // Cerca la bacheca in base al tipo, caricandola da DAO
-    if (utenteCorrente == null) return null;
+        if (utenteCorrente == null) return null;
 
-    Bacheca b = bachecaDAO.findByTipo(utenteCorrente.getUsername(), tipo);
-    if (b != null) {
-        List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), tipo);
-        b.setToDoList(todos);
+        Bacheca b = bachecaDAO.findByTipo(utenteCorrente.getUsername(), tipo);
+        if (b != null) {
+            List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), tipo);
+            b.setToDoList(todos);
+        }
+        return b;
     }
-    return b;
-   }
 
+    /**
+     * Restituisce la lista dei ToDo condivisi con l'utente specificato.
+     *
+     * @param username nome dell'utente
+     * @return lista di ToDo condivisi
+     */
     public List<ToDo> getToDoCondivisi(String username) {
         return ((ToDoDAO) toDoDAO).getToDoCondivisiCon(username);
     }
-
 }

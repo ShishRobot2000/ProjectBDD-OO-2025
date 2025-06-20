@@ -6,17 +6,38 @@ import controller.*;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Pannello grafico che rappresenta una bacheca (Università, Lavoro, Tempo Libero),
+ * mostrando i ToDo associati e permettendo l'aggiunta e gestione degli stessi.
+ */
 public class BoardPanel extends JPanel {
 
+    /** Nome visualizzato della bacheca */
     private String boardName;
-    private Bacheca bacheca; // riferimento alla bacheca associata a questo pannello
-    private JPanel toDoListPanel; // contiene i ToDoCardPanel
 
-    private Controller controller; // controller condiviso
-    private JButton addButton;     // pulsante per aggiungere ToDo
-    private Utente utenteCorrente; // riferimento all'utente corrente
+    /** Bacheca logica associata al pannello */
+    private Bacheca bacheca;
 
-    // Costruttore che inizializza il pannello della bacheca
+    /** Pannello contenitore dei ToDoCardPanel */
+    private JPanel toDoListPanel;
+
+    /** Controller per gestire la logica dell’applicazione */
+    private Controller controller;
+
+    /** Pulsante per aggiungere un nuovo ToDo */
+    private JButton addButton;
+
+    /** Utente attualmente loggato */
+    private Utente utenteCorrente;
+
+    /**
+     * Costruttore del pannello della bacheca.
+     *
+     * @param boardName nome visualizzato della bacheca
+     * @param bacheca oggetto logico della bacheca
+     * @param controller controller MVC
+     * @param utenteCorrente utente attualmente loggato
+     */
     public BoardPanel(String boardName, Bacheca bacheca, Controller controller, Utente utenteCorrente) {
         this.boardName = boardName;
         this.bacheca = bacheca;
@@ -33,46 +54,60 @@ public class BoardPanel extends JPanel {
         addButton = new JButton("+ Aggiungi ToDo");
         add(addButton, BorderLayout.SOUTH);
 
-        // Registra subito il listener sul pulsante
-        //addButton.addActionListener(e -> controller.addNewToDo(this));
-        
+        // Registra listener solo se il controller è già presente
         if (controller != null) {
-             addButton.addActionListener(e -> controller.addNewToDo(this));
-       }
-    }
-    
-
-    // Setter per l’utente corrente (se vuoi modificarlo dopo la costruzione)
-    public void setUtenteCorrente(Utente utente) {
-        this.utenteCorrente = utente;
-    }
-    
-    public void setController(Controller controller) {
-        this.controller = controller;
-
-        // Rimuove eventuali listener precedenti per evitare duplicati
-        for (var al : addButton.getActionListeners()) {
-             addButton.removeActionListener(al);
-       }
-
-       if (controller != null) {
-             addButton.addActionListener(e -> controller.addNewToDo(this));
+            addButton.addActionListener(e -> controller.addNewToDo(this));
         }
     }
 
-    // Metodo per impostare la bacheca e caricare i ToDo
+    /**
+     * Imposta l’utente corrente.
+     *
+     * @param utente nuovo utente corrente
+     */
+    public void setUtenteCorrente(Utente utente) {
+        this.utenteCorrente = utente;
+    }
+
+    /**
+     * Imposta il controller e aggiorna il listener del pulsante.
+     *
+     * @param controller nuovo controller
+     */
+    public void setController(Controller controller) {
+        this.controller = controller;
+
+        // Rimuove eventuali listener precedenti
+        for (var al : addButton.getActionListeners()) {
+            addButton.removeActionListener(al);
+        }
+
+        if (controller != null) {
+            addButton.addActionListener(e -> controller.addNewToDo(this));
+        }
+    }
+
+    /**
+     * Imposta la bacheca logica associata al pannello.
+     *
+     * @param bacheca oggetto bacheca da associare
+     */
     public void setBacheca(Bacheca bacheca) {
         this.bacheca = bacheca;
-
     }
-    
 
+    /**
+     * Richiama il refresh grafico della bacheca.
+     */
     public void aggiornaBoard() {
         refresh();
     }
 
-    
-    // Metodo per aggiungere una ToDoCardPanel al pannello
+    /**
+     * Aggiunge graficamente un ToDo alla lista.
+     *
+     * @param todo oggetto ToDo da aggiungere
+     */
     public void addToDo(ToDo todo) {
         ToDoCardPanel card = new ToDoCardPanel(todo, this, controller, utenteCorrente);
         toDoListPanel.add(card);
@@ -80,18 +115,27 @@ public class BoardPanel extends JPanel {
         repaint();
     }
 
-    // Metodo per rimuovere un ToDo dalla BoardPanel tramite il controller
+    /**
+     * Rimuove un ToDo dalla bacheca attraverso il controller.
+     *
+     * @param todo oggetto ToDo da rimuovere
+     */
     public void removeToDo(ToDo todo) {
         controller.removeToDo(this, todo);
     }
 
-    // Metodo per rimuovere tutti i ToDoCardPanel dal pannello
+    /**
+     * Rimuove tutti i ToDoCardPanel dalla board (grafica).
+     */
     public void clearToDos() {
         toDoListPanel.removeAll();
         revalidate();
         repaint();
     }
 
+    /**
+     * Ricarica i ToDo dalla bacheca e da quelli condivisi.
+     */
     public void refresh() {
         clearToDos();
 
@@ -103,9 +147,7 @@ public class BoardPanel extends JPanel {
 
         if (utenteCorrente != null && bacheca != null) {
             for (ToDo todo : utenteCorrente.getToDoCondivisi()) {
-                // Aggiungi solo se appartiene alla bacheca corrente
                 if (todo.getTipoBacheca() == bacheca.getTipo()) {
-                    // Evita duplicati
                     if (!bacheca.getToDoList().contains(todo)) {
                         addToDo(todo);
                     }
@@ -114,11 +156,12 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    // Getters
+    /** @return oggetto Bacheca associato al pannello */
     public Bacheca getBacheca() {
         return bacheca;
     }
 
+    /** @return nome della bacheca */
     public String getBoardName() {
         return boardName;
     }

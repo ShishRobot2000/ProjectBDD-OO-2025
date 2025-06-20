@@ -14,13 +14,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import javax.imageio.ImageIO;
 
+/**
+ * Finestra di dialogo per la visualizzazione o modifica di un ToDo.
+ * Supporta la visualizzazione di dettagli, la modifica del contenuto e la condivisione con altri utenti.
+ */
 public class ToDoFormDialog extends JDialog {
 
     private JTextField titoloField;
     private JTextField descrizioneField;
     private JTextField scadenzaField;
     private JTextField coloreField;
-
     private JTextField urlField;
     private JLabel imagePreviewLabel;
     private byte[] imageBytes;
@@ -36,6 +39,15 @@ public class ToDoFormDialog extends JDialog {
     private Utente utente;
     private TipoBacheca tipoBacheca;
 
+    /**
+     * Costruttore della finestra di dialogo per visualizzare o modificare un ToDo.
+     *
+     * @param todo il ToDo da gestire
+     * @param editable true per abilitare la modifica, false per sola lettura
+     * @param controller il controller del progetto
+     * @param utente l'utente attualmente autenticato
+     * @param tipoBacheca il tipo di bacheca a cui il ToDo appartiene
+     */
     public ToDoFormDialog(ToDo todo, boolean editable, Controller controller, Utente utente, TipoBacheca tipoBacheca) {
         this.todo = todo;
         this.editable = editable;
@@ -45,55 +57,41 @@ public class ToDoFormDialog extends JDialog {
 
         setTitle("Dettagli ToDo: " + todo.getTitolo());
         setModal(true);
-
-        // Dimensioni diverse a seconda della modalità
-        if (editable) {
-            setSize(500, 500);
-        } else {
-            setSize(600, 500);
-        }
+        setSize(editable ? 500 : 600, 500);
         setLocationRelativeTo(null);
 
-        // Pannello principale
         JPanel content = new JPanel(new GridLayout(0, 2, 5, 5));
         content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // Imposta colore sfondo della card
         try {
             content.setBackground(Color.decode("#" + todo.getColore()));
         } catch (Exception e) {
             content.setBackground(Color.LIGHT_GRAY);
         }
 
-        if (todo.getId() > 0 && !editable) { // mostralo solo se è già stato salvato
+        if (todo.getId() > 0 && !editable) {
             content.add(new JLabel("ID:"));
             JTextField idField = new JTextField(String.valueOf(todo.getId()));
             idField.setEditable(false);
             content.add(idField);
         }
 
-        // Titolo
         content.add(new JLabel("Titolo:"));
         titoloField = new JTextField(todo.getTitolo());
         content.add(titoloField);
 
-        // Descrizione
         content.add(new JLabel("Descrizione:"));
         descrizioneField = new JTextField(todo.getDescrizione());
         content.add(descrizioneField);
 
-        // Scadenza
         content.add(new JLabel("Scadenza (YYYY-MM-DD):"));
         scadenzaField = new JTextField(todo.getDataDiScadenza());
         content.add(scadenzaField);
 
-        // URL
         content.add(new JLabel("URL:"));
         if (!editable) {
             if (todo.getUrl() != null && !todo.getUrl().isBlank()) {
                 JLabel urlLabel = new JLabel("<html><a href='" + todo.getUrl() + "'>" + todo.getUrl() + "</a></html>");
                 urlLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
                 urlLabel.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -117,7 +115,6 @@ public class ToDoFormDialog extends JDialog {
             content.add(urlField);
         }
 
-        // Immagine
         content.add(new JLabel("Immagine:"));
         if (!editable) {
             JPanel imagePanel = new JPanel(new BorderLayout());
@@ -139,7 +136,6 @@ public class ToDoFormDialog extends JDialog {
 
             imagePanel.add(imagePreviewLabel, BorderLayout.CENTER);
 
-            // Bottone "Apri immagine intera"
             if (todo.getImmagine() != null && todo.getImmagine().length > 0) {
                 JButton openImageBtn = new JButton("Apri a dimensione piena");
                 openImageBtn.addActionListener(e -> {
@@ -150,7 +146,6 @@ public class ToDoFormDialog extends JDialog {
                         scrollPane.setPreferredSize(new Dimension(
                                 Math.min(img.getWidth(), 1200),
                                 Math.min(img.getHeight(), 800)));
-
                         JDialog dialog = new JDialog(ToDoFormDialog.this, "Immagine completa", false);
                         dialog.setAlwaysOnTop(true);
                         dialog.getContentPane().add(scrollPane);
@@ -182,14 +177,12 @@ public class ToDoFormDialog extends JDialog {
             content.add(imageButton);
         }
 
-        // Solo se siamo in modalità modifica, mostriamo anche il campo "colore"
         if (editable) {
             content.add(new JLabel("Colore (es. FFFFFF):"));
             coloreField = new JTextField(todo.getColore());
             content.add(coloreField);
         }
 
-        // Pannello pulsanti
         JPanel buttons = new JPanel();
         btnSave = new JButton("Salva");
         btnCancel = new JButton(editable ? "Annulla" : "Chiudi");
@@ -220,7 +213,6 @@ public class ToDoFormDialog extends JDialog {
             dispose();
         });
 
-        // Se non è in modalità modifica, aggiungi il pulsante Condividi
         if (!editable && todo.getProprietario() != null && todo.getProprietario().equals(utente.getUsername())) {
             JButton btnCondividi = new JButton("Condividi");
             btnCondividi.addActionListener(e -> {
@@ -232,7 +224,6 @@ public class ToDoFormDialog extends JDialog {
                             utente.getUsername(),
                             tipoBacheca
                     );
-
                     if (esito) {
                         JOptionPane.showMessageDialog(this, "ToDo condiviso con " + destinatario);
                     }
@@ -250,15 +241,28 @@ public class ToDoFormDialog extends JDialog {
         updateEditableState();
     }
 
+    /**
+     * Indica se l'utente ha confermato il salvataggio del ToDo.
+     *
+     * @return true se confermato, false altrimenti
+     */
     public boolean isConfirmed() {
         return confirmed;
     }
 
+    /**
+     * Imposta la modalità di modifica del form.
+     *
+     * @param editable true per abilitare la modifica, false per sola lettura
+     */
     public void setEditable(boolean editable) {
         this.editable = editable;
         updateEditableState();
     }
 
+    /**
+     * Aggiorna l'interfaccia in base alla modalità (modifica o lettura).
+     */
     private void updateEditableState() {
         titoloField.setEditable(editable);
         descrizioneField.setEditable(editable);

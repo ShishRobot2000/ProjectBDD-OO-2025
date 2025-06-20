@@ -6,8 +6,18 @@ import database.ConnessioneDatabase;
 
 import java.sql.*;
 
+/**
+ * Implementazione dell'interfaccia {@link IUtenteDAO} per la gestione della tabella "utente".
+ * Esegue le operazioni CRUD di base sul database PostgreSQL.
+ */
 public class UtenteDAO implements IUtenteDAO {
 
+    /**
+     * Salva un nuovo utente nel database.
+     *
+     * @param utente L'oggetto {@link Utente} da inserire
+     * @return true se l'inserimento ha avuto successo, false altrimenti
+     */
     @Override
     public boolean salvaUtente(Utente utente) {
         String sql = "INSERT INTO utente (username, password) VALUES (?, ?)";
@@ -28,6 +38,13 @@ public class UtenteDAO implements IUtenteDAO {
         }
     }
 
+    /**
+     * Cerca un utente nel database usando username e password.
+     *
+     * @param username L'username dell'utente
+     * @param password La password dell'utente
+     * @return L'oggetto {@link Utente} trovato o null se non esiste
+     */
     @Override
     public Utente findByUsernameAndPassword(String username, String password) {
         String sql = "SELECT * FROM utente WHERE username = ? AND password = ?";
@@ -49,6 +66,12 @@ public class UtenteDAO implements IUtenteDAO {
         return null;
     }
 
+    /**
+     * Cerca un utente nel database solo tramite username.
+     *
+     * @param username L'username da cercare
+     * @return L'oggetto {@link Utente} trovato o null se non esiste
+     */
     @Override
     public Utente findByUsername(String username) {
         String sql = "SELECT * FROM utente WHERE username = ?";
@@ -57,14 +80,10 @@ public class UtenteDAO implements IUtenteDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, username.trim());
-            
 
             ResultSet rs = stmt.executeQuery();
-            
-            
             if (rs.next()) {
-                String foundUser = rs.getString("username");
-                return new Utente(foundUser, rs.getString("password"));
+                return new Utente(rs.getString("username"), rs.getString("password"));
             }
 
         } catch (SQLException e) {
@@ -73,6 +92,12 @@ public class UtenteDAO implements IUtenteDAO {
         return null;
     }
 
+    /**
+     * Elimina un utente dal database in base allo username.
+     *
+     * @param username Lo username dell'utente da eliminare
+     * @return true se l'eliminazione ha avuto successo, false altrimenti
+     */
     @Override
     public boolean eliminaUtente(String username) {
         String sql = "DELETE FROM utente WHERE username = ?";
@@ -89,6 +114,12 @@ public class UtenteDAO implements IUtenteDAO {
         }
     }
 
+    /**
+     * Verifica se un utente esiste già nel database.
+     *
+     * @param username Lo username da verificare
+     * @return true se l'utente esiste, false altrimenti
+     */
     public boolean esisteUtente(String username) {
         String sql = "SELECT 1 FROM utente WHERE username = ?";
 
@@ -98,7 +129,7 @@ public class UtenteDAO implements IUtenteDAO {
             stmt.setString(1, username.trim());
 
             try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next(); // restituisce true se almeno una riga è trovata
+                return rs.next(); // true se almeno una riga è presente
             }
 
         } catch (SQLException e) {
@@ -106,7 +137,7 @@ public class UtenteDAO implements IUtenteDAO {
             return false;
         }
     }
-
 }
+
 
 

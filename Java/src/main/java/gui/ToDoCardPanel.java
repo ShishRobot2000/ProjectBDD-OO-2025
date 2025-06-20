@@ -11,6 +11,10 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Componente grafico che rappresenta un singolo ToDo all'interno di una bacheca.
+ * Gestisce l'interazione per modificarlo, completarlo, rimuoverlo o condividerlo.
+ */
 public class ToDoCardPanel extends JPanel {
 
     private ToDo todo;
@@ -18,6 +22,14 @@ public class ToDoCardPanel extends JPanel {
     private Controller controller;
     private Utente utenteCorrente;
 
+    /**
+     * Costruisce un pannello per un ToDo specifico.
+     *
+     * @param todo il ToDo da rappresentare
+     * @param boardPanel il pannello bacheca genitore
+     * @param controller il controller per gestire le azioni
+     * @param utenteCorrente l'utente attualmente loggato
+     */
     public ToDoCardPanel(ToDo todo, BoardPanel boardPanel, Controller controller, Utente utenteCorrente) {
         this.todo = todo;
         this.parent = boardPanel;
@@ -110,7 +122,7 @@ public class ToDoCardPanel extends JPanel {
                 if (e.getClickCount() == 2) {
                     ToDoFormDialog dialog = new ToDoFormDialog(
                             todo,
-                            false, // modalità sola lettura
+                            false,
                             controller,
                             utenteCorrente,
                             todo.getTipoBacheca()
@@ -119,13 +131,21 @@ public class ToDoCardPanel extends JPanel {
                 }
             }
         });
-
     }
 
+    /**
+     * Apre il dialogo di modifica per il ToDo.
+     *
+     * @param isEditable true se il dialogo deve essere in modalità modifica
+     */
     private void openEditDialog(boolean isEditable) {
         controller.editToDo(parent, todo, isEditable, this::updateCardContent);
     }
 
+    /**
+     * Aggiorna i contenuti del pannello in base allo stato attuale del ToDo.
+     * Viene chiamato dopo modifiche.
+     */
     private void updateCardContent() {
         boolean isCondiviso = utenteCorrente.getToDoCondivisi().contains(todo);
 
@@ -186,9 +206,13 @@ public class ToDoCardPanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Rimuove il ToDo dal pannello genitore.
+     */
     private void removeToDo() {
         if (parent != null) {
             parent.removeToDo(todo);
         }
     }
 }
+

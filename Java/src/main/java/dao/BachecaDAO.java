@@ -9,8 +9,20 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementazione dell'interfaccia {@link IBachecaDAO}.
+ * Gestisce le operazioni CRUD relative alla tabella "bacheca" del database.
+ * Fornisce metodi per salvare, cercare per utente e per tipo di bacheca.
+ */
 public class BachecaDAO implements IBachecaDAO {
 
+    /**
+     * Salva una nuova bacheca per un dato utente.
+     *
+     * @param bacheca     L'oggetto {@link Bacheca} da salvare.
+     * @param proprietario Lo username del proprietario della bacheca.
+     * @return true se l'inserimento è avvenuto con successo, false altrimenti.
+     */
     @Override
     public boolean salvaBacheca(Bacheca bacheca, String proprietario) {
         String sql = "INSERT INTO bacheca (tipo, descrizione, proprietario) VALUES (?, ?, ?)";
@@ -30,6 +42,12 @@ public class BachecaDAO implements IBachecaDAO {
         }
     }
 
+    /**
+     * Trova tutte le bacheche associate a un determinato utente.
+     *
+     * @param username Lo username dell’utente.
+     * @return Una lista di {@link Bacheca} appartenenti all’utente.
+     */
     @Override
     public List<Bacheca> findByUtente(String username) {
         List<Bacheca> lista = new ArrayList<>();
@@ -56,6 +74,13 @@ public class BachecaDAO implements IBachecaDAO {
         return lista;
     }
 
+    /**
+     * Trova una bacheca di un determinato tipo per un utente.
+     *
+     * @param username Lo username dell’utente.
+     * @param tipo     Il tipo di bacheca ({@link TipoBacheca}).
+     * @return L’oggetto {@link Bacheca} se trovato, altrimenti null.
+     */
     @Override
     public Bacheca findByTipo(String username, TipoBacheca tipo) {
         String sql = "SELECT * FROM bacheca WHERE proprietario = ? AND tipo = ?";

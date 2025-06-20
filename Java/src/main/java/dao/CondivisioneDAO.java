@@ -10,50 +10,62 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementazione dell'interfaccia ICondivisioneDAO.
+ * Gestisce tutte le operazioni CRUD legate alla tabella "condivisione",
+ * come la condivisione, la rimozione, la verifica e l'accettazione/rifiuto
+ * delle richieste di condivisione dei ToDo.
+ */
 public class CondivisioneDAO implements ICondivisioneDAO {
 
+    /**
+     * Inserisce una richiesta di condivisione di un ToDo (in stato PENDING).
+     */
     @Override
     public boolean condividi(String username, String prop, String tipo, String titolo) {
-    String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
-    String insertCondivisione = "INSERT INTO condivisione (username_utente, id_todo, stato) VALUES (?, ?, 'PENDING')";
+        String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
+        String insertCondivisione = "INSERT INTO condivisione (username_utente, id_todo, stato) VALUES (?, ?, 'PENDING')";
 
-    try (Connection conn = ConnessioneDatabase.getConnection();
-         PreparedStatement stmtSelect = conn.prepareStatement(queryId)) {
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement stmtSelect = conn.prepareStatement(queryId)) {
 
-        stmtSelect.setString(1, prop);
-        stmtSelect.setString(2, tipo);
-        stmtSelect.setString(3, titolo);
+            stmtSelect.setString(1, prop);
+            stmtSelect.setString(2, tipo);
+            stmtSelect.setString(3, titolo);
 
-        ResultSet rs = stmtSelect.executeQuery();
-        if (rs.next()) {
-            int idToDo = rs.getInt("id");
+            ResultSet rs = stmtSelect.executeQuery();
+            if (rs.next()) {
+                int idToDo = rs.getInt("id");
 
-            try (PreparedStatement stmtInsert = conn.prepareStatement(insertCondivisione)) {
-                stmtInsert.setString(1, username);
-                stmtInsert.setInt(2, idToDo);
-                return stmtInsert.executeUpdate() > 0;
+                try (PreparedStatement stmtInsert = conn.prepareStatement(insertCondivisione)) {
+                    stmtInsert.setString(1, username);
+                    stmtInsert.setInt(2, idToDo);
+                    return stmtInsert.executeUpdate() > 0;
+                }
+
+            } else {
+                System.err.println("ToDo non trovato per prop=" + prop + ", tipo=" + tipo + ", titolo=" + titolo);
+                return false;
             }
 
-        } else {
-            System.err.println("ToDo non trovato per prop=" + prop + ", tipo=" + tipo + ", titolo=" + titolo);
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
     }
-}
 
+    /**
+     * Rimuove una condivisione esistente.
+     */
     @Override
     public boolean rimuoviCondivisione(String username, String prop, String tipo, String titolo) {
         String sql = """
-        DELETE FROM condivisione 
-        WHERE username_utente = ? 
-          AND id_todo = (
-            SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?
-          )
-    """;
+            DELETE FROM condivisione 
+            WHERE username_utente = ? 
+              AND id_todo = (
+                SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?
+              )
+        """;
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -67,16 +79,18 @@ public class CondivisioneDAO implements ICondivisioneDAO {
         }
     }
 
-
+    /**
+     * Verifica se una condivisione esiste.
+     */
     @Override
     public boolean esisteCondivisione(String username, String prop, String tipo, String titolo) {
         String sql = """
-        SELECT 1 FROM condivisione 
-        WHERE username_utente = ? 
-          AND id_todo = (
-            SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?
-          )
-    """;
+            SELECT 1 FROM condivisione 
+            WHERE username_utente = ? 
+              AND id_todo = (
+                SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?
+              )
+        """;
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -91,34 +105,37 @@ public class CondivisioneDAO implements ICondivisioneDAO {
         }
     }
 
-
+    /**
+     * Restituisce una lista di richieste di condivisione pendenti per un determinato utente.
+     */
     public List<String[]> getRichiestePendentiPerUtente(String usernameUtente) {
         List<String[]> richieste = new ArrayList<>();
         String sql = """
-        SELECT t.proprietario AS richiedente, t.tipo_bacheca, t.titolo
-        FROM condivisione c
-        JOIN todo t ON c.id_todo = t.id
-        WHERE c.username_utente = ? AND c.stato = 'PENDING'
-       """;
+            SELECT t.proprietario AS richiedente, t.tipo_bacheca, t.titolo
+            FROM condivisione c
+            JOIN todo t ON c.id_todo = t.id
+            WHERE c.username_utente = ? AND c.stato = 'PENDING'
+        """;
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-        stmt.setString(1, usernameUtente);
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            String richiedente = rs.getString("richiedente");
-            String tipoBacheca = rs.getString("tipo_bacheca");
-            String titolo = rs.getString("titolo");
-            richieste.add(new String[] { richiedente, tipoBacheca, titolo });
-        }
+            stmt.setString(1, usernameUtente);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String richiedente = rs.getString("richiedente");
+                String tipoBacheca = rs.getString("tipo_bacheca");
+                String titolo = rs.getString("titolo");
+                richieste.add(new String[] { richiedente, tipoBacheca, titolo });
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return richieste;
     }
 
+    /**
+     * Aggiorna lo stato di una richiesta di condivisione (ACCEPTED o REJECTED).
+     */
     public boolean aggiornaStatoRichiesta(String username, String proprietario, String tipo, String titolo, String nuovoStato) {
-        System.out.println("[DEBUG] aggiornaStatoRichiesta params: username=" + username + ", proprietario=" + proprietario + ", tipo=" + tipo + ", titolo=" + titolo);
-
         String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
         String updateSql = "UPDATE condivisione SET stato = ? WHERE username_utente = ? AND id_todo = ?";
         String deleteSql = "DELETE FROM condivisione WHERE username_utente = ? AND id_todo = ? AND stato = 'PENDING'";
@@ -163,39 +180,42 @@ public class CondivisioneDAO implements ICondivisioneDAO {
         }
     }
 
-
-    
+    /**
+     * Rimuove una richiesta di condivisione in stato PENDING.
+     */
     public boolean rimuoviRichiesta(String username, String proprietario, String tipo, String titolo) {
-    String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
-    String deleteSql = "DELETE FROM condivisione WHERE username_utente = ? AND id_todo = ? AND stato = 'PENDING'";
-    
-    try (Connection conn = ConnessioneDatabase.getConnection();
-         PreparedStatement stmtId = conn.prepareStatement(queryId)) {
-         
-        stmtId.setString(1, proprietario);
-        stmtId.setString(2, tipo);
-        stmtId.setString(3, titolo);
-        
-        ResultSet rs = stmtId.executeQuery();
-        if (rs.next()) {
-            int idTodo = rs.getInt("id");
-            
-            try (PreparedStatement stmtDelete = conn.prepareStatement(deleteSql)) {
-                stmtDelete.setString(1, username);
-                stmtDelete.setInt(2, idTodo);
-                
-                return stmtDelete.executeUpdate() > 0;
+        String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
+        String deleteSql = "DELETE FROM condivisione WHERE username_utente = ? AND id_todo = ? AND stato = 'PENDING'";
+
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement stmtId = conn.prepareStatement(queryId)) {
+
+            stmtId.setString(1, proprietario);
+            stmtId.setString(2, tipo);
+            stmtId.setString(3, titolo);
+
+            ResultSet rs = stmtId.executeQuery();
+            if (rs.next()) {
+                int idTodo = rs.getInt("id");
+
+                try (PreparedStatement stmtDelete = conn.prepareStatement(deleteSql)) {
+                    stmtDelete.setString(1, username);
+                    stmtDelete.setInt(2, idTodo);
+                    return stmtDelete.executeUpdate() > 0;
+                }
+            } else {
+                System.err.println("ToDo non trovato per rimuovi richiesta");
+                return false;
             }
-        } else {
-            System.err.println("ToDo non trovato per rimuovi richiesta");
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
     }
-}
 
+    /**
+     * Elimina tutte le condivisioni legate a un determinato ToDo.
+     */
     public boolean eliminaCondivisioniCollegate(int idToDo) {
         String sql = "DELETE FROM condivisione WHERE id_todo = ?";
         try (Connection conn = ConnessioneDatabase.getConnection();
@@ -208,5 +228,5 @@ public class CondivisioneDAO implements ICondivisioneDAO {
             return false;
         }
     }
-
 }
+

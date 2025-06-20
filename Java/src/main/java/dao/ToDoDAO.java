@@ -10,14 +10,23 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementazione di {@link IToDoDAO} per la gestione dei ToDo nel database PostgreSQL.
+ * Fornisce operazioni CRUD e metodi di supporto per la gestione di ToDo e condivisioni.
+ */
 public class ToDoDAO implements IToDoDAO {
 
+    /**
+     * Salva un nuovo ToDo nel database, aggiornando le posizioni esistenti e assegnando un nuovo ID.
+     *
+     * @param todo L'oggetto {@link ToDo} da salvare
+     * @param proprietario Il proprietario del ToDo
+     * @param tipoBacheca Il tipo di bacheca associato
+     * @return true se il salvataggio è avvenuto correttamente, false altrimenti
+     */
     @Override
     public boolean salva(ToDo todo, String proprietario, TipoBacheca tipoBacheca) {
-        String aggiornaPosizioni = "UPDATE todo " +
-                "SET posizione = posizione + 1 " +
-                "WHERE proprietario = ? AND tipo_bacheca = ?";
-
+        String aggiornaPosizioni = "UPDATE todo SET posizione = posizione + 1 WHERE proprietario = ? AND tipo_bacheca = ?";
         String insert = "INSERT INTO todo (titolo, descrizione, data_scadenza, colore, stato, url, immagine, posizione, proprietario, tipo_bacheca) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
@@ -38,7 +47,7 @@ public class ToDoDAO implements IToDoDAO {
                 stmtInsert.setString(5, todo.getStato().name());
                 stmtInsert.setString(6, todo.getUrl());
                 stmtInsert.setBytes(7, todo.getImmagine());
-                stmtInsert.setInt(8, 1);
+                stmtInsert.setInt(8, 1); // sempre prima posizione
                 stmtInsert.setString(9, proprietario);
                 stmtInsert.setString(10, tipoBacheca.name());
 
@@ -57,6 +66,13 @@ public class ToDoDAO implements IToDoDAO {
         }
     }
 
+    /**
+     * Restituisce tutti i ToDo di una determinata bacheca, ordinati per posizione.
+     *
+     * @param proprietario Username del proprietario
+     * @param tipoBacheca Tipo di bacheca
+     * @return Lista di ToDo ordinati per posizione
+     */
     @Override
     public List<ToDo> trovaPerBacheca(String proprietario, TipoBacheca tipoBacheca) {
         List<ToDo> lista = new ArrayList<>();
@@ -83,7 +99,6 @@ public class ToDoDAO implements IToDoDAO {
                 todo.setPosizione(rs.getInt("posizione"));
                 todo.setProprietario(proprietario);
                 todo.setTipoBacheca(tipoBacheca);
-
                 lista.add(todo);
             }
 
@@ -94,6 +109,14 @@ public class ToDoDAO implements IToDoDAO {
         return lista;
     }
 
+    /**
+     * Aggiorna un ToDo esistente nel database.
+     *
+     * @param todo Il ToDo aggiornato
+     * @param proprietario Il proprietario del ToDo
+     * @param tipoBacheca La bacheca a cui appartiene
+     * @return true se l'aggiornamento ha avuto successo, false altrimenti
+     */
     @Override
     public boolean aggiorna(ToDo todo, String proprietario, TipoBacheca tipoBacheca) {
         String sql = "UPDATE todo SET titolo = ?, descrizione = ?, data_scadenza = ?, colore = ?, stato = ?, " +
@@ -120,6 +143,12 @@ public class ToDoDAO implements IToDoDAO {
         }
     }
 
+    /**
+     * Elimina un ToDo dal database in base al suo ID.
+     *
+     * @param id L'identificatore del ToDo
+     * @return true se l'eliminazione ha avuto successo, false altrimenti
+     */
     @Override
     public boolean elimina(int id) {
         String sql = "DELETE FROM todo WHERE id = ?";
@@ -136,6 +165,12 @@ public class ToDoDAO implements IToDoDAO {
         }
     }
 
+    /**
+     * Restituisce l'elenco dei ToDo condivisi con un utente e accettati.
+     *
+     * @param username L'username dell'utente a cui sono stati condivisi i ToDo
+     * @return Lista di {@link ToDo} condivisi accettati
+     */
     @Override
     public List<ToDo> getToDoCondivisiCon(String username) {
         List<ToDo> lista = new ArrayList<>();
@@ -168,7 +203,6 @@ public class ToDoDAO implements IToDoDAO {
                 todo.setStato(StatoToDo.valueOf(rs.getString("stato_todo")));
                 todo.setProprietario(rs.getString("proprietario"));
                 todo.setTipoBacheca(TipoBacheca.valueOf(rs.getString("tipo_bacheca")));
-
                 lista.add(todo);
             }
 
