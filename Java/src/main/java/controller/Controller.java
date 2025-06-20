@@ -432,4 +432,53 @@ public class Controller {
     public List<ToDo> getToDoCondivisi(String username) {
         return ((ToDoDAO) toDoDAO).getToDoCondivisiCon(username);
     }
+
+    /**
+     * Restituisce la lista degli username degli utenti con cui il ToDo è stato condiviso.
+     *
+     * @param todo Il ToDo per cui recuperare gli utenti condivisi
+     * @return Lista di username degli utenti destinatari della condivisione
+     */
+    public List<String> getUtentiCondivisi(ToDo todo) {
+        return condivisioneDAO.getUtentiCondivisi(
+                todo.getProprietario(),
+                todo.getTipoBacheca().name(),
+                todo.getTitolo()
+        );
+    }
+
+    /**
+     * Rimuove la condivisione del ToDo per un determinato destinatario.
+     *
+     * @param destinatario Lo username dell’utente da rimuovere dalla condivisione
+     * @param todo Il ToDo da cui rimuovere la condivisione
+     * @return true se la rimozione ha avuto successo, false altrimenti
+     */
+    public boolean rimuoviCondivisione(String destinatario, ToDo todo) {
+        return condivisioneDAO.rimuoviCondivisione(
+                destinatario,
+                todo.getProprietario(),
+                todo.getTipoBacheca().name(),
+                todo.getTitolo()
+        );
+    }
+
+    /**
+     * Rimuove la condivisione del ToDo per tutti gli utenti specificati.
+     *
+     * @param todo Il ToDo da cui rimuovere le condivisioni
+     * @param utentiDaRimuovere Lista di username degli utenti da rimuovere dalla condivisione
+     */
+    public void rimuoviCondivisioni(ToDo todo, List<String> utentiDaRimuovere) {
+        for (String destinatario : utentiDaRimuovere) {
+            condivisioneDAO.rimuoviCondivisione(
+                    destinatario,
+                    todo.getProprietario(),
+                    todo.getTipoBacheca().name(),
+                    todo.getTitolo()
+            );
+        }
+    }
+
+
 }

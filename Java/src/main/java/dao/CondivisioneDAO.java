@@ -19,7 +19,14 @@ import java.util.List;
 public class CondivisioneDAO implements ICondivisioneDAO {
 
     /**
-     * Inserisce una richiesta di condivisione di un ToDo (in stato PENDING).
+     * Inserisce una richiesta di condivisione di un ToDo con uno specifico utente.
+     * Se il ToDo viene trovato, la condivisione viene registrata con stato 'PENDING'.
+     *
+     * @param username Lo username dell'utente destinatario della condivisione
+     * @param prop Lo username del proprietario del ToDo
+     * @param tipo Il tipo di bacheca a cui appartiene il ToDo (es. UNIVERSITA, LAVORO, TEMPO_LIBERO)
+     * @param titolo Il titolo del ToDo da condividere
+     * @return true se la condivisione è stata inserita correttamente, false altrimenti
      */
     @Override
     public boolean condividi(String username, String prop, String tipo, String titolo) {
@@ -55,7 +62,14 @@ public class CondivisioneDAO implements ICondivisioneDAO {
     }
 
     /**
-     * Rimuove una condivisione esistente.
+     * Rimuove la condivisione di un ToDo per un determinato utente destinatario.
+     * La condivisione viene identificata tramite il proprietario, tipo di bacheca e titolo del ToDo.
+     *
+     * @param username Lo username del destinatario della condivisione
+     * @param prop Lo username del proprietario del ToDo
+     * @param tipo Il tipo di bacheca (es. UNIVERSITA, LAVORO, TEMPO_LIBERO)
+     * @param titolo Il titolo del ToDo condiviso
+     * @return true se almeno una riga è stata eliminata, false altrimenti
      */
     @Override
     public boolean rimuoviCondivisione(String username, String prop, String tipo, String titolo) {
@@ -80,7 +94,14 @@ public class CondivisioneDAO implements ICondivisioneDAO {
     }
 
     /**
-     * Verifica se una condivisione esiste.
+     * Verifica se esiste già una condivisione tra il proprietario e il destinatario per uno specifico ToDo.
+     * Il ToDo è identificato tramite proprietario, tipo di bacheca e titolo.
+     *
+     * @param username Lo username del destinatario
+     * @param prop Lo username del proprietario del ToDo
+     * @param tipo Il tipo di bacheca del ToDo (es. UNIVERSITA, LAVORO, TEMPO_LIBERO)
+     * @param titolo Il titolo del ToDo
+     * @return true se la condivisione è già presente nel database, false altrimenti
      */
     @Override
     public boolean esisteCondivisione(String username, String prop, String tipo, String titolo) {
@@ -106,7 +127,11 @@ public class CondivisioneDAO implements ICondivisioneDAO {
     }
 
     /**
-     * Restituisce una lista di richieste di condivisione pendenti per un determinato utente.
+     * Restituisce la lista delle richieste di condivisione pendenti (stato 'PENDING') per uno specifico utente.
+     * Ogni richiesta è rappresentata da un array di 3 elementi: richiedente, tipo bacheca e titolo ToDo.
+     *
+     * @param usernameUtente Lo username dell’utente destinatario delle richieste
+     * @return Una lista di richieste di condivisione pendenti, ciascuna rappresentata come array {richiedente, tipoBacheca, titolo}
      */
     public List<String[]> getRichiestePendentiPerUtente(String usernameUtente) {
         List<String[]> richieste = new ArrayList<>();
@@ -133,7 +158,16 @@ public class CondivisioneDAO implements ICondivisioneDAO {
     }
 
     /**
-     * Aggiorna lo stato di una richiesta di condivisione (ACCEPTED o REJECTED).
+     * Aggiorna lo stato di una richiesta di condivisione per un determinato ToDo.
+     * Se lo stato è "ACCEPTED", la richiesta viene aggiornata a tale stato.
+     * Se lo stato è "REJECTED", la richiesta viene eliminata completamente.
+     *
+     * @param username Lo username del destinatario della richiesta
+     * @param proprietario Lo username del proprietario del ToDo
+     * @param tipo Il tipo di bacheca del ToDo (es. UNIVERSITA, LAVORO, TEMPO_LIBERO)
+     * @param titolo Il titolo del ToDo condiviso
+     * @param nuovoStato Il nuovo stato da assegnare alla richiesta ("ACCEPTED" o "REJECTED")
+     * @return true se l’operazione ha avuto successo, false altrimenti
      */
     public boolean aggiornaStatoRichiesta(String username, String proprietario, String tipo, String titolo, String nuovoStato) {
         String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
@@ -181,7 +215,14 @@ public class CondivisioneDAO implements ICondivisioneDAO {
     }
 
     /**
-     * Rimuove una richiesta di condivisione in stato PENDING.
+     * Rimuove una richiesta di condivisione in stato 'PENDING' per uno specifico ToDo.
+     * Il ToDo è identificato tramite proprietario, tipo di bacheca e titolo.
+     *
+     * @param username Lo username dell'utente destinatario della richiesta
+     * @param proprietario Lo username del proprietario del ToDo
+     * @param tipo Il tipo di bacheca del ToDo (es. UNIVERSITA, LAVORO, TEMPO_LIBERO)
+     * @param titolo Il titolo del ToDo
+     * @return true se l'eliminazione è avvenuta con successo, false altrimenti
      */
     public boolean rimuoviRichiesta(String username, String proprietario, String tipo, String titolo) {
         String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
@@ -214,7 +255,11 @@ public class CondivisioneDAO implements ICondivisioneDAO {
     }
 
     /**
-     * Elimina tutte le condivisioni legate a un determinato ToDo.
+     * Elimina tutte le condivisioni associate a un determinato ToDo.
+     * Utilizzato ad esempio quando un ToDo viene eliminato dal proprietario.
+     *
+     * @param idToDo L'ID del ToDo per cui si vogliono rimuovere tutte le condivisioni
+     * @return true se le condivisioni sono state eliminate correttamente, false in caso di errore
      */
     public boolean eliminaCondivisioniCollegate(int idToDo) {
         String sql = "DELETE FROM condivisione WHERE id_todo = ?";
@@ -228,5 +273,39 @@ public class CondivisioneDAO implements ICondivisioneDAO {
             return false;
         }
     }
+
+    /**
+     * Recupera gli username degli utenti con cui è stato condiviso un determinato ToDo.
+     *
+     * @param proprietario Lo username del proprietario del ToDo
+     * @param tipoBacheca Il tipo di bacheca a cui appartiene il ToDo
+     * @param titolo Il titolo del ToDo
+     * @return Una lista di username dei destinatari della condivisione
+     */
+    @Override
+    public List<String> getUtentiCondivisi(String proprietario, String tipoBacheca, String titolo) {
+        List<String> utenti = new ArrayList<>();
+
+        String sql = "SELECT destinatario FROM condivisione WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
+
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, proprietario);
+            stmt.setString(2, tipoBacheca);
+            stmt.setString(3, titolo);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                utenti.add(rs.getString("destinatario"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return utenti;
+    }
+
 }
 

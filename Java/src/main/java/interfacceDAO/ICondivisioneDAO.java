@@ -9,13 +9,14 @@ import java.util.List;
 public interface ICondivisioneDAO {
 
     /**
-     * Condivide un ToDo con un altro utente.
+     * Inserisce una richiesta di condivisione di un ToDo con uno specifico utente.
+     * La richiesta viene salvata con stato iniziale 'PENDING'.
      *
-     * @param username lo username dell'utente destinatario della condivisione
-     * @param proprietario lo username del proprietario del ToDo
-     * @param tipoBacheca il tipo di bacheca del ToDo
-     * @param titoloToDo il titolo del ToDo da condividere
-     * @return true se la condivisione è andata a buon fine, false altrimenti
+     * @param username Lo username dell'utente destinatario della condivisione
+     * @param proprietario Lo username del proprietario del ToDo
+     * @param tipoBacheca Il tipo di bacheca a cui appartiene il ToDo (es. UNIVERSITA, LAVORO, TEMPO_LIBERO)
+     * @param titoloToDo Il titolo del ToDo da condividere
+     * @return true se la condivisione è stata inserita correttamente, false altrimenti
      */
     boolean condividi(String username, String proprietario, String tipoBacheca, String titoloToDo);
 
@@ -80,5 +81,15 @@ public interface ICondivisioneDAO {
      * @return true se l'eliminazione delle condivisioni collegate ha avuto successo, false altrimenti
      */
     boolean eliminaCondivisioniCollegate(int id);
+
+    /**
+     * Restituisce la lista di username con cui è stato condiviso un determinato ToDo.
+     *
+     * @param proprietario Lo username del proprietario del ToDo
+     * @param tipoBacheca Il tipo di bacheca (es. UNIVERSITA, LAVORO, TEMPO_LIBERO)
+     * @param titolo Il titolo del ToDo condiviso
+     * @return Lista di username dei destinatari
+     */
+    List<String> getUtentiCondivisi(String proprietario, String tipoBacheca, String titolo);
 }
 

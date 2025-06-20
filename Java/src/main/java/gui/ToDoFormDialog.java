@@ -176,7 +176,7 @@ public class ToDoFormDialog extends JDialog {
             });
             content.add(imageButton);
         }
-
+        
         if (editable) {
             content.add(new JLabel("Colore (es. FFFFFF):"));
             coloreField = new JTextField(todo.getColore());
