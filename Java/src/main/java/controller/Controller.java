@@ -479,6 +479,20 @@ public class Controller {
             );
         }
     }
+    
 
-
+    /**
+    * Elimina l'utente attualmente autenticato dal sistema utilizzando UtenteDAO.
+    * Questo metodo cancella l'utente dal database e resetta lo stato dell'utente corrente.
+    */
+    public void eliminaUtente() {
+       if (utenteCorrente != null) {
+           boolean successo = utenteDAO.eliminaUtente(utenteCorrente.getUsername());
+           if (successo) {
+              utenteCorrente = null;
+          } else {
+              JOptionPane.showMessageDialog(null, "Errore durante l'eliminazione dell'utente.");
+         }
+      }
+   }
 }

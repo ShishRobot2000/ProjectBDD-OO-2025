@@ -286,7 +286,12 @@ public class CondivisioneDAO implements ICondivisioneDAO {
     public List<String> getUtentiCondivisi(String proprietario, String tipoBacheca, String titolo) {
         List<String> utenti = new ArrayList<>();
 
-        String sql = "SELECT destinatario FROM condivisione WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
+        String sql = """
+        SELECT c.username_utente AS destinatario
+        FROM condivisione c
+        JOIN todo t ON c.id_todo = t.id
+        WHERE t.proprietario = ? AND t.tipo_bacheca = ? AND t.titolo = ?
+        """;
 
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

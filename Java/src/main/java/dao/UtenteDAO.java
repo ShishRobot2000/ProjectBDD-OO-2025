@@ -100,56 +100,71 @@ public class UtenteDAO implements IUtenteDAO {
      */
     @Override
     public boolean eliminaUtente(String username) {
-        try (Connection conn = ConnessioneDatabase.getConnection()) {
-            conn.setAutoCommit(false); // Inizio transazione
+       Connection conn = null;
+       try {
+          conn = ConnessioneDatabase.getConnection();
+          conn.setAutoCommit(false); // Inizio transazione
 
-            // 1. Elimina condivisioni ricevute
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "DELETE FROM condivisione WHERE destinatario = ?")) {
+          // 1. Elimina condivisioni ricevute
+          try (PreparedStatement stmt = conn.prepareStatement(
+                  "DELETE FROM condivisione WHERE destinatario = ?")) {
                 stmt.setString(1, username);
                 stmt.executeUpdate();
-            }
+          }
 
-            // 2. Elimina condivisioni fatte
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "DELETE FROM condivisione WHERE proprietario = ?")) {
-                stmt.setString(1, username);
-                stmt.executeUpdate();
-            }
+          // 2. Elimina condivisioni fatte
+          try (PreparedStatement stmt = conn.prepareStatement(
+                "DELETE FROM condivisione WHERE proprietario = ?")) {
+               stmt.setString(1, username);
+               stmt.executeUpdate();
+         }
 
-            // 3. Elimina todo dell'utente
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "DELETE FROM todo WHERE proprietario = ?")) {
-                stmt.setString(1, username);
-                stmt.executeUpdate();
-            }
+          // 3. Elimina todo dell'utente
+          try (PreparedStatement stmt = conn.prepareStatement(
+                 "DELETE FROM todo WHERE proprietario = ?")) {
+              stmt.setString(1, username);
+              stmt.executeUpdate();
+         }
 
-            // 4. Elimina bacheche dell'utente
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "DELETE FROM bacheca WHERE proprietario = ?")) {
-                stmt.setString(1, username);
-                stmt.executeUpdate();
-            }
+          // 4. Elimina bacheche dell'utente
+          try (PreparedStatement stmt = conn.prepareStatement(
+                "DELETE FROM bacheca WHERE proprietario = ?")) {
+             stmt.setString(1, username);
+             stmt.executeUpdate();
+         }
 
-            // 5. Elimina l’utente
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "DELETE FROM utente WHERE username = ?")) {
-                stmt.setString(1, username);
-                boolean result = stmt.executeUpdate() > 0;
-                conn.commit(); // Commit transazione
-                return result;
-            }
+          // 5. Elimina l’utente
+          try (PreparedStatement stmt = conn.prepareStatement(
+                 "DELETE FROM utente WHERE username = ?")) {
+             stmt.setString(1, username);
+             boolean result = stmt.executeUpdate() > 0;
+             conn.commit(); // Commit transazione
+             return result;
+        }
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                ConnessioneDatabase.getConnection().rollback();
-            } catch (SQLException rollbackEx) {
-                rollbackEx.printStackTrace();
-            }
-            return false;
+           e.printStackTrace();
+          if (conn != null) {
+              try {
+                  conn.rollback();  // Fai rollback sulla stessa connessione
+             } catch (SQLException rollbackEx) {
+                  rollbackEx.printStackTrace();
+              }
+         }
+          return false;
+
+        } finally {
+           if (conn != null) {
+               try {
+                  conn.setAutoCommit(true);  // Riabilita autoCommit
+                  conn.close();
+              } catch (SQLException closeEx) {
+                  closeEx.printStackTrace();
+               }
+           }
         }
-    }
+   }
+
 
 
     /**

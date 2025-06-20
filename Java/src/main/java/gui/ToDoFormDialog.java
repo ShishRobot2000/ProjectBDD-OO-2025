@@ -176,7 +176,39 @@ public class ToDoFormDialog extends JDialog {
             });
             content.add(imageButton);
         }
-        
+
+        // --- Aggiunta del pannello "Utenti condivisi" ---
+        if (!editable && todo.getProprietario() != null && todo.getProprietario().equals(utente.getUsername())) {
+           content.add(new JLabel("Utenti condivisi:"));
+
+           JButton btnGestisciCondivisi = new JButton("Gestisci condivisioni");
+           btnGestisciCondivisi.addActionListener(e -> {
+               // Recupera gli utenti con cui è condiviso il ToDo
+               java.util.List<String> utentiCondivisi = controller.getUtentiCondivisi(todo);
+
+               if (utentiCondivisi.isEmpty()) {
+                  JOptionPane.showMessageDialog(this, "Nessuna condivisione presente.");
+                  return;
+             }
+
+               // Mostra il dialogo per la gestione
+               JFrame frameParent = findParentJFrame(this);
+               if (frameParent == null) {
+                   frameParent = new JFrame();
+               }
+
+               SharedUsersDialog dialog = new SharedUsersDialog(
+                    frameParent,
+                    utentiCondivisi,
+                    controller,
+                    todo
+               );
+               dialog.setVisible(true);
+           });
+
+           content.add(btnGestisciCondivisi);
+        }
+
         if (editable) {
             content.add(new JLabel("Colore (es. FFFFFF):"));
             coloreField = new JTextField(todo.getColore());
@@ -242,6 +274,19 @@ public class ToDoFormDialog extends JDialog {
     }
 
     /**
+     * Cerca il JFrame genitore risalendo la gerarchia dei componenti.
+     *
+     * @param c il componente da cui partire
+     * @return il JFrame genitore oppure null se non trovato
+     */
+    private JFrame findParentJFrame(Component c) {
+        while (c != null && !(c instanceof JFrame)) {
+            c = c.getParent();
+        }
+        return (JFrame) c;
+    }
+
+    /**
      * Indica se l'utente ha confermato il salvataggio del ToDo.
      *
      * @return true se confermato, false altrimenti
@@ -267,6 +312,7 @@ public class ToDoFormDialog extends JDialog {
         titoloField.setEditable(editable);
         descrizioneField.setEditable(editable);
         scadenzaField.setEditable(editable);
+
 
         if (editable && coloreField != null) {
             coloreField.setEditable(true);

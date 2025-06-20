@@ -43,9 +43,34 @@ public class DashboardPanel extends JPanel {
         // Pannello superiore con messaggio di benvenuto e pulsanti
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+        
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         welcomeLabel = new JLabel("Benvenuto:");
-        topPanel.add(welcomeLabel, BorderLayout.WEST);
+        leftPanel.add(welcomeLabel);
+        
+        /**
+        * Bottone per eliminare l'utente corrente.
+        * Alla pressione, chiede conferma all'utente tramite JOptionPane.
+        * Se confermato, invoca il metodo controller.eliminaUtente()
+        * e ritorna alla schermata di login.
+        */
+        JButton eliminaUtenteButton = new JButton("Elimina utente");
+        eliminaUtenteButton.addActionListener(e -> {
+             int conferma = JOptionPane.showConfirmDialog(
+                this,
+                "Sei sicuro di voler eliminare l'utente?",
+                "Conferma eliminazione",
+                JOptionPane.YES_NO_OPTION
+           );
+
+          if (conferma == JOptionPane.YES_OPTION) {
+            controller.eliminaUtente();  // Metodo da implementare nel Controller
+            parent.showLoginPanel();     // Torna alla schermata di login
+          }
+        });
+
+        leftPanel.add(eliminaUtenteButton);
+        topPanel.add(leftPanel, BorderLayout.WEST);
 
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
