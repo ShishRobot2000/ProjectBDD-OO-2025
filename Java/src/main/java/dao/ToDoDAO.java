@@ -131,7 +131,13 @@ public class ToDoDAO implements IToDoDAO {
             stmt.setString(4, todo.getColore());
             stmt.setString(5, todo.getStato().name());
             stmt.setString(6, todo.getUrl());
-            stmt.setBytes(7, todo.getImmagine());
+
+            if (todo.getImmagine() != null) {
+                stmt.setBytes(7, todo.getImmagine());
+            } else {
+                stmt.setNull(7, java.sql.Types.BINARY);
+            }
+
             stmt.setInt(8, todo.getPosizione());
             stmt.setInt(9, todo.getId());
 

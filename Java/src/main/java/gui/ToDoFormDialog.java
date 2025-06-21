@@ -161,7 +161,10 @@ public class ToDoFormDialog extends JDialog {
 
             content.add(imagePanel);
         } else {
+            JPanel imageButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0)); // 10px di distanza tra i bottoni
+
             JButton imageButton = new JButton("Seleziona Immagine");
+            imageButton.setPreferredSize(new Dimension(160, 25)); // Più piccolo
             imageButton.addActionListener(e -> {
                 JFileChooser fileChooser = new JFileChooser();
                 if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -174,7 +177,20 @@ public class ToDoFormDialog extends JDialog {
                     }
                 }
             });
-            content.add(imageButton);
+            imageButtonPanel.add(imageButton);
+
+            // Se l'immagine esiste, mostra anche "Rimuovi Immagine"
+            if (todo.getImmagine() != null && todo.getImmagine().length > 0) {
+                JButton removeImageButton = new JButton("Rimuovi Immagine");
+                removeImageButton.setPreferredSize(new Dimension(140, 25)); // Stessa dimensione
+                removeImageButton.addActionListener(e -> {
+                    imageBytes = null;
+                    JOptionPane.showMessageDialog(this, "Immagine rimossa. Verrà salvata senza immagine.");
+                });
+                imageButtonPanel.add(removeImageButton);
+            }
+
+            content.add(imageButtonPanel);
         }
 
         // --- Aggiunta del pannello "Utenti condivisi" ---
@@ -231,9 +247,7 @@ public class ToDoFormDialog extends JDialog {
                 if (urlField != null) {
                     todo.setUrl(urlField.getText().trim());
                 }
-                if (imageBytes != null) {
-                    todo.setImmagine(imageBytes);
-                }
+                todo.setImmagine(imageBytes);
             }
 
             confirmed = true;
