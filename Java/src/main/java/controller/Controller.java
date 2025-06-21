@@ -69,6 +69,7 @@ public class Controller {
                 List<ToDo> todos = toDoDAO.trovaPerBacheca(utenteCorrente.getUsername(), bacheca.getTipo());
                 bacheca.setToDoList(todos);
                 todos.forEach(board::addToDo);
+                board.aggiornaBoard();
             } else {
                 JOptionPane.showMessageDialog(board, "Il titolo non può essere vuoto.");
             }
@@ -145,6 +146,7 @@ public class Controller {
             if (b == null) continue;
 
             List<ToDo> todos = toDoDAO.trovaPerBacheca(username, tipo);
+
             StringBuilder avvisi = new StringBuilder();
 
             for (ToDo todo : todos) {
