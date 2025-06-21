@@ -18,7 +18,7 @@ import controller.*;
 public class DashboardPanel extends JPanel {
 
     /** Riferimento alla finestra principale (MainFrame) */
-    private MainFrame parent;
+    private MainFrame frame;
 
     /** Pannelli per le tre bacheche */
     private BoardPanel universitaBoard;
@@ -34,10 +34,10 @@ public class DashboardPanel extends JPanel {
     /**
      * Costruttore del pannello dashboard.
      *
-     * @param parent riferimento al MainFrame principale
+     * @param frame riferimento al MainFrame principale
      */
-    public DashboardPanel(MainFrame parent) {
-        this.parent = parent;
+    public DashboardPanel(MainFrame frame) {
+        this.frame = frame;
         setLayout(new BorderLayout());
 
         // Pannello superiore con messaggio di benvenuto e pulsanti
@@ -65,7 +65,7 @@ public class DashboardPanel extends JPanel {
 
           if (conferma == JOptionPane.YES_OPTION) {
             controller.eliminaUtente();  // Metodo da implementare nel Controller
-            parent.showLoginPanel();     // Torna alla schermata di login
+            frame.showLoginPanel();     // Torna alla schermata di login
           }
         });
 
@@ -74,12 +74,12 @@ public class DashboardPanel extends JPanel {
 
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
-            parent.showLoginPanel(); // Torna alla schermata di login
+            frame.showLoginPanel(); // Torna alla schermata di login
         });
 
         JButton invitiButton = new JButton("Inviti");
         invitiButton.addActionListener(e -> {
-            JDialog dialog = new InvitationsDialog(parent, controller.getUtenteCorrente(), this);
+            JDialog dialog = new InvitationsDialog(frame, controller.getUtenteCorrente(), this);
             dialog.setVisible(true);
         });
 

@@ -13,6 +13,11 @@ import java.sql.SQLException;
  */
 public class InitDAO {
 
+    /** Costruttore privato per impedire l'istanziazione */
+    private InitDAO() {
+        // Classe di utility: non istanziabile
+    }
+
     /**
      * Inserisce i tipi di bacheca e gli stati dei ToDo nel database,
      * solo se non sono già presenti.
