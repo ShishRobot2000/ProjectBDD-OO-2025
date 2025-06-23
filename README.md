@@ -17,7 +17,7 @@ Il progetto supporta multiutenza, autenticazione con login/password univoche e g
 🔍 Codice disponibile su GitHub:  
 [https://github.com/ShishRobot2000/ProjectBDD-OO-2025](https://github.com/ShishRobot2000/ProjectBDD-OO-2025)
 
-📄 Documentazione ufficiale OO (PDF):  
+📄 Documentazione ufficiale OO:   
 [Terzo Homework](Java/Documentazione/TerzoHomework/)  
 [Javadoc](Java/Documentazione/Javadoc/)
 
