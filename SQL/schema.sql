@@ -42,7 +42,7 @@ CREATE TABLE public.condivisione (
     username_utente character varying(100) NOT NULL,
     id_todo integer NOT NULL,
     stato character varying(20) DEFAULT 'PENDING'::character varying NOT NULL,
-    CONSTRAINT stato_condivisione_check CHECK (((stato)::text = ANY ((ARRAY['PENDING'::character varying, 'ACCEPTED'::character varying])::text[])))
+    CONSTRAINT condivisione_stato_check CHECK (((stato)::text = ANY ((ARRAY['PENDING'::character varying, 'ACCEPTED'::character varying])::text[])))
 );
 
 
