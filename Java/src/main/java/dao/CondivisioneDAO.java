@@ -18,6 +18,14 @@ import java.util.List;
  */
 public class CondivisioneDAO implements ICondivisioneDAO {
 
+    /**
+     * Costruttore di default per CondivisioneDAO.
+     * Inizializza l'oggetto per la gestione delle condivisioni.
+     */
+    public CondivisioneDAO() {
+        // Nessuna inizializzazione specifica
+    }
+
     private static final String QUERY_TODO_ID =
             "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
 

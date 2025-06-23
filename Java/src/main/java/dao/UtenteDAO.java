@@ -15,6 +15,14 @@ import java.util.List;
 public class UtenteDAO implements IUtenteDAO {
 
     /**
+     * Costruttore di default per la classe UtenteDAO.
+     * Crea un nuovo oggetto per accedere alla tabella degli utenti nel database.
+     */
+    public UtenteDAO() {
+        // Nessuna inizializzazione necessaria
+    }
+
+    /**
      * Salva un nuovo utente nel database.
      *
      * @param utente L'oggetto {@link Utente} da inserire

@@ -15,6 +15,15 @@ import java.util.List;
  * Fornisce operazioni CRUD e metodi di supporto per la gestione di ToDo e condivisioni.
  */
 public class ToDoDAO implements IToDoDAO {
+
+    /**
+     * Costruttore di default per la classe ToDoDAO.
+     * Inizializza un oggetto per gestire le operazioni sulla tabella ToDo.
+     */
+    public ToDoDAO() {
+        // Nessuna inizializzazione specifica richiesta
+    }
+
     /**
      * Salva un nuovo ToDo nel database, aggiornando le posizioni esistenti e assegnando un nuovo ID.
      *

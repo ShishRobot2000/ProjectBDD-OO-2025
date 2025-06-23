@@ -20,23 +20,49 @@ import javax.imageio.ImageIO;
  */
 public class ToDoFormDialog extends JDialog {
 
+    /** Campo di testo per il titolo del ToDo */
     private JTextField titoloField;
+
+    /** Campo di testo per la descrizione del ToDo */
     private JTextField descrizioneField;
+
+    /** Campo di testo per la data di scadenza del ToDo */
     private JTextField scadenzaField;
+
+    /** Campo di testo per il colore associato al ToDo (es. "FFFFFF") */
     private JTextField coloreField;
+
+    /** Campo di testo per l'URL collegato al ToDo */
     private JTextField urlField;
+
+    /** Etichetta per visualizzare l'anteprima dell'immagine associata */
     private JLabel imagePreviewLabel;
+
+    /** Byte array che rappresenta l'immagine caricata per il ToDo */
     private byte[] imageBytes;
 
+    /** Flag che indica se il form è stato confermato (salvato) */
     private boolean confirmed = false;
+
+    /** Flag che indica se i campi del form sono modificabili */
     private boolean editable = true;
 
+    /** Bottone per salvare il ToDo */
     private JButton btnSave;
+
+    /** Bottone per annullare le modifiche e chiudere il form */
     private JButton btnCancel;
 
+    /** Oggetto ToDo associato al form */
     private ToDo todo;
+
+    /** Controller per la gestione della logica dell'applicazione */
     private Controller controller;
+
+    /** Utente attualmente autenticato che utilizza il form */
     private Utente utente;
+
+    /** Tipo di bacheca a cui è associato il ToDo */
     private TipoBacheca tipoBacheca;
 
     /**

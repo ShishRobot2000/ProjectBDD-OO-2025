@@ -3,13 +3,24 @@ package gui;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Finestra principale dell'applicazione. Gestisce la dashboard e il login.
+ */
 public class MainFrame extends JFrame {
 
+    /** Layout a schede per cambiare facilmente pannelli all'interno del frame. */
     private CardLayout cardLayout = new CardLayout();
+
+    /** Pannello principale che contiene i vari pannelli della GUI, gestito tramite CardLayout. */
     private JPanel mainPanel = new JPanel(cardLayout);
+
+    /** Pannello per la schermata di login. */
     private LoginPanel loginPanel;
+
+    /** Pannello per la dashboard principale dell’utente autenticato. */
     private DashboardPanel dashboardPanel;
 
+    /** Crea il frame principale dell'applicazione. */
     public MainFrame() {
         setTitle("ToDo Manager");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -31,7 +42,8 @@ public class MainFrame extends JFrame {
     }
 
     /**
-     * Passa alla dashboard e carica i dati per l'utente autenticato
+     * Mostra il pannello della dashboard per l'utente specificato.
+     * @param username Nome utente dell'utente loggato
      */
     public void showDashboard(String username) {
         SwingUtilities.invokeLater(() -> dashboardPanel.loadUser(username));

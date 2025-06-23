@@ -16,9 +16,13 @@ public class DashboardPanel extends JPanel {
     /** Riferimento alla finestra principale (MainFrame) */
     private MainFrame frame;
 
-    /** Pannelli per le tre bacheche */
+    /** Pannello che rappresenta la bacheca "Università" dell'utente */
     private BoardPanel universitaBoard;
+
+    /** Pannello che rappresenta la bacheca "Lavoro" dell'utente */
     private BoardPanel lavoroBoard;
+
+    /** Pannello che rappresenta la bacheca "Tempo Libero" dell'utente */
     private BoardPanel tempoLiberoBoard;
 
     /** Controller MVC per gestire la logica dell'app */

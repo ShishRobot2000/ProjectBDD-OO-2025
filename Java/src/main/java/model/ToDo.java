@@ -58,76 +58,172 @@ public class ToDo {
 
     // Getter e setter con Javadoc
 
-    /** @return l'ID del ToDo */
+    /**
+     * Restituisce l'identificativo numerico del ToDo.
+     *
+     * @return l'ID del ToDo
+     */
     public int getId() { return id; }
 
-    /** @param id l'ID da assegnare al ToDo */
+    /**
+     * Imposta l'identificativo numerico del ToDo.
+     *
+     * @param id l'ID da assegnare al ToDo
+     */
     public void setId(int id) { this.id = id; }
 
-    /** @return il titolo del ToDo */
+    /**
+     * Restituisce il titolo assegnato al ToDo.
+     *
+     * @return il titolo del ToDo
+     */
     public String getTitolo() { return titolo; }
 
-    /** @param titolo il titolo da assegnare */
+    /**
+     * Imposta un nuovo titolo per il ToDo.
+     *
+     * @param titolo il titolo da assegnare
+     */
     public void setTitolo(String titolo) { this.titolo = titolo; }
 
-    /** @return la data di scadenza */
+    /**
+     * Restituisce la data di scadenza assegnata al ToDo.
+     *
+     * @return la data di scadenza
+     */
     public String getDataDiScadenza() { return dataDiScadenza; }
 
-    /** @param dataDiScadenza la data di scadenza da assegnare */
+    /**
+     * Imposta la data di scadenza per il ToDo.
+     *
+     * @param dataDiScadenza la data di scadenza da assegnare
+     */
     public void setDataDiScadenza(String dataDiScadenza) { this.dataDiScadenza = dataDiScadenza; }
 
-    /** @return l'URL collegato al ToDo */
+    /**
+     * Restituisce l'URL collegato al ToDo.
+     *
+     * @return l'URL collegato al ToDo
+     */
     public String getUrl() { return url; }
 
-    /** @param url l'URL da assegnare */
+    /**
+     * Imposta l'URL collegato al ToDo.
+     *
+     * @param url l'URL da assegnare
+     */
     public void setUrl(String url) { this.url = url; }
 
-    /** @return l'immagine associata al ToDo */
+    /**
+     * Restituisce l'immagine associata al ToDo.
+     *
+     * @return l'immagine associata al ToDo
+     */
     public byte[] getImmagine() { return immagine; }
 
-    /** @param immagine l'immagine da assegnare (byte[]) */
+    /**
+     * Imposta l'immagine associata al ToDo.
+     *
+     * @param immagine l'immagine da assegnare (byte[])
+     */
     public void setImmagine(byte[] immagine) { this.immagine = immagine; }
 
-    /** @return la descrizione testuale */
+    /**
+     * Restituisce la descrizione testuale del ToDo.
+     *
+     * @return la descrizione testuale
+     */
     public String getDescrizione() { return descrizione; }
 
-    /** @param descrizione la descrizione da assegnare */
+    /**
+     * Imposta la descrizione testuale del ToDo.
+     *
+     * @param descrizione la descrizione da assegnare
+     */
     public void setDescrizione(String descrizione) { this.descrizione = descrizione; }
 
-    /** @return il colore del ToDo */
+    /**
+     * Restituisce il colore assegnato al ToDo.
+     *
+     * @return il colore del ToDo
+     */
     public String getColore() { return colore; }
 
-    /** @param colore il colore da assegnare (es. "FFFFFF") */
+    /**
+     * Imposta il colore associato al ToDo.
+     *
+     * @param colore il colore da assegnare (es. "FFFFFF")
+     */
     public void setColore(String colore) { this.colore = colore; }
 
-    /** @return la posizione (ordinamento) del ToDo nella bacheca */
+    /**
+     * Restituisce la posizione ordinata del ToDo nella bacheca.
+     *
+     * @return la posizione del ToDo
+     */
     public int getPosizione() { return posizione; }
 
-    /** @param posizione la nuova posizione */
+    /**
+     * Imposta la posizione ordinata del ToDo nella bacheca.
+     *
+     * @param posizione la nuova posizione
+     */
     public void setPosizione(int posizione) { this.posizione = posizione; }
 
-    /** @return lo stato attuale del ToDo */
+    /**
+     * Restituisce lo stato attuale del ToDo.
+     *
+     * @return lo stato attuale del ToDo
+     */
     public StatoToDo getStato() { return stato; }
 
-    /** @param stato lo stato da assegnare (COMPLETATO / NON_COMPLETATO) */
+    /**
+     * Imposta lo stato attuale del ToDo.
+     *
+     * @param stato lo stato da assegnare (COMPLETATO / NON_COMPLETATO)
+     */
     public void setStato(StatoToDo stato) { this.stato = stato; }
 
-    /** @return il nome utente del proprietario del ToDo */
+    /**
+     * Restituisce il nome utente del proprietario del ToDo.
+     *
+     * @return il nome utente del proprietario
+     */
     public String getProprietario() { return proprietario; }
 
-    /** @param proprietario il nome utente del proprietario */
+    /**
+     * Imposta il nome utente del proprietario del ToDo.
+     *
+     * @param proprietario il nome utente del proprietario
+     */
     public void setProprietario(String proprietario) { this.proprietario = proprietario; }
 
-    /** @return la lista di utenti con cui è condiviso il ToDo */
+    /**
+     * Restituisce la lista di utenti con cui il ToDo è condiviso.
+     *
+     * @return la lista di utenti con cui è condiviso
+     */
     public List<Utente> getUtentiCondivisi() { return utentiCondivisi; }
 
-    /** @param utentiCondivisi la lista degli utenti con cui condividere */
+    /**
+     * Imposta la lista di utenti con cui il ToDo è condiviso.
+     *
+     * @param utentiCondivisi la lista degli utenti con cui condividere
+     */
     public void setUtentiCondivisi(List<Utente> utentiCondivisi) { this.utentiCondivisi = utentiCondivisi; }
 
-    /** @return il tipo di bacheca a cui appartiene */
+    /**
+     * Restituisce il tipo di bacheca a cui appartiene il ToDo.
+     *
+     * @return il tipo di bacheca
+     */
     public TipoBacheca getTipoBacheca() { return tipoBacheca; }
 
-    /** @param tipoBacheca il tipo di bacheca da assegnare */
+    /**
+     * Imposta il tipo di bacheca a cui appartiene il ToDo.
+     *
+     * @param tipoBacheca il tipo di bacheca da assegnare
+     */
     public void setTipoBacheca(TipoBacheca tipoBacheca) { this.tipoBacheca = tipoBacheca; }
 
     // Metodi funzionali

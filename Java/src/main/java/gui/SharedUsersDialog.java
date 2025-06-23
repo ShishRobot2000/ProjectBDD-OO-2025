@@ -15,8 +15,13 @@ import java.util.ArrayList;
  */
 public class SharedUsersDialog extends JDialog {
 
+    /** Elenco delle checkbox associate agli utenti condivisi. */
     private final List<JCheckBox> checkBoxes = new ArrayList<>();
+
+    /** Il controller utilizzato per gestire le azioni nella finestra. */
     private final Controller controller;
+
+    /** Il ToDo per cui mostrare o modificare la condivisione. */
     private final ToDo todo;
 
     /**

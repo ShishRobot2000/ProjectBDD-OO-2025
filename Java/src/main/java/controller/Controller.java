@@ -17,16 +17,30 @@ import java.util.List;
  */
 public class Controller {
 
+    /** Pannello per la bacheca "Università". */
     private final BoardPanel universitaBoard;
+
+    /** Pannello per la bacheca "Lavoro". */
     private final BoardPanel lavoroBoard;
+
+    /** Pannello per la bacheca "Tempo Libero". */
     private final BoardPanel tempoLiberoBoard;
 
+    /** DAO per la gestione degli utenti. */
     private final IUtenteDAO utenteDAO;
+
+    /** DAO per la gestione delle bacheche. */
     private final IBachecaDAO bachecaDAO;
+
+    /** DAO per la gestione dei ToDo. */
     private final IToDoDAO toDoDAO;
+
+    /** DAO per la gestione delle condivisioni. */
     private final ICondivisioneDAO condivisioneDAO = new CondivisioneDAO();
 
+    /** Utente attualmente autenticato nel sistema. */
     private Utente utenteCorrente;
+
 
     /**
      * Costruttore del Controller.

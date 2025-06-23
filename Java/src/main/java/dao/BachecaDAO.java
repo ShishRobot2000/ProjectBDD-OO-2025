@@ -17,6 +17,14 @@ import java.util.List;
 public class BachecaDAO implements IBachecaDAO {
 
     /**
+     * Costruttore di default per BachecaDAO.
+     * Inizializza l'oggetto per gestire le operazioni sulla tabella "bacheca".
+     */
+    public BachecaDAO() {
+        // Nessuna inizializzazione specifica richiesta
+    }
+
+    /**
      * Salva una nuova bacheca per un dato utente.
      *
      * @param bacheca     L'oggetto {@link Bacheca} da salvare.

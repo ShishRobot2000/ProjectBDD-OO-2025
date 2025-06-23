@@ -155,13 +155,22 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    /** @return oggetto Bacheca associato al pannello */
+    /**
+     * Restituisce l'oggetto {@link Bacheca} associato al pannello.
+     *
+     * @return oggetto Bacheca associato al pannello
+     */
     public Bacheca getBacheca() {
         return bacheca;
     }
 
-    /** @return nome della bacheca */
+    /**
+     * Restituisce il nome della bacheca rappresentata dal pannello.
+     *
+     * @return nome della bacheca
+     */
     public String getBoardName() {
         return boardName;
     }
+
 }

@@ -13,7 +13,10 @@ import java.sql.SQLException;
  */
 public class InitDAO {
 
-    /** Costruttore privato per impedire l'istanziazione */
+    /**
+     * Costruttore privato per impedire l'istanziazione della classe.
+     * La classe contiene solo metodi statici di utilità.
+     */
     private InitDAO() {
         // Classe di utility: non istanziabile
     }

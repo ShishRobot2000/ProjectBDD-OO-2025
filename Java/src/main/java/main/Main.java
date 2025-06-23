@@ -11,6 +11,11 @@ import javax.swing.*;
  */
 public class Main {
 
+    /** Costruttore privato per evitare l'istanziazione della classe utility. */
+    private Main() {
+        // Classe non instanziabile
+    }
+
     /**
      * Metodo principale di avvio dell'applicazione.
      *

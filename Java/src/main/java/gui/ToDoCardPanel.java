@@ -17,9 +17,16 @@ import java.awt.event.MouseEvent;
  */
 public class ToDoCardPanel extends JPanel {
 
+    /** Il ToDo visualizzato nel pannello. */
     private ToDo todo;
+
+    /** Il pannello bacheca a cui appartiene il ToDo. */
     private BoardPanel boardPanel;
+
+    /** Il controller utilizzato per gestire le azioni utente. */
     private Controller controller;
+
+    /** L'utente attualmente loggato. */
     private Utente utenteCorrente;
 
     /**
