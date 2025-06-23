@@ -226,10 +226,30 @@ public class ToDoFormDialog extends JDialog {
         }
 
         if (editable) {
-            content.add(new JLabel("Colore (es. FFFFFF):"));
-            coloreField = new JTextField(todo.getColore());
-            content.add(coloreField);
+            content.add(new JLabel("Colore:"));
+
+            JButton selezionaColoreBtn = new JButton("Scegli colore");
+
+            selezionaColoreBtn.addActionListener(e -> {
+                Color coloreSelezionato = JColorChooser.showDialog(this, "Scegli un colore", Color.WHITE);
+                if (coloreSelezionato != null) {
+                    String coloreHex = String.format("%02X%02X%02X",
+                            coloreSelezionato.getRed(),
+                            coloreSelezionato.getGreen(),
+                            coloreSelezionato.getBlue());
+                    todo.setColore(coloreHex); // Aggiorna direttamente il ToDo
+                    selezionaColoreBtn.setText("Colore: #" + coloreHex); // Cambia il testo del bottone per feedback
+                }
+            });
+
+            content.add(selezionaColoreBtn);
+
+        } else {
+            content.add(new JLabel("Colore selezionato:"));
+            JTextField coloreLabel = new JTextField("#" + todo.getColore());
+            content.add(coloreLabel);
         }
+
 
         JPanel buttons = new JPanel();
         btnSave = new JButton("Salva");
