@@ -2,18 +2,14 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.border.TitledBorder;
 
-import gui.BoardPanel;
 import model.Utente;
-import model.Bacheca;
 import model.TipoBacheca;
-import model.ToDo;
 import controller.*;
 
 /**
  * Pannello principale della dashboard utente, contenente le tre bacheche
- * (Università, Lavoro, Tempo Libero) e i pulsanti di controllo (logout, inviti).
+ * (Università, LAVORO, Tempo Libero) e i pulsanti di controllo (logout, inviti).
  */
 public class DashboardPanel extends JPanel {
 
@@ -73,9 +69,7 @@ public class DashboardPanel extends JPanel {
         topPanel.add(leftPanel, BorderLayout.WEST);
 
         JButton logoutButton = new JButton("Logout");
-        logoutButton.addActionListener(e -> {
-            frame.showLoginPanel(); // Torna alla schermata di login
-        });
+        logoutButton.addActionListener(e -> frame.showLoginPanel());
 
         JButton invitiButton = new JButton("Inviti");
         invitiButton.addActionListener(e -> {
@@ -133,15 +127,15 @@ public class DashboardPanel extends JPanel {
             setWelcomeUser(utente.getUsername());
 
             universitaBoard.setUtenteCorrente(utente);
-            universitaBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.Universita));
+            universitaBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.UNIVERSITA));
             universitaBoard.aggiornaBoard();
 
             lavoroBoard.setUtenteCorrente(utente);
-            lavoroBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.Lavoro));
+            lavoroBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.LAVORO));
             lavoroBoard.aggiornaBoard();
 
             tempoLiberoBoard.setUtenteCorrente(utente);
-            tempoLiberoBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.TempoLibero));
+            tempoLiberoBoard.setBacheca(controller.getBachecaPerTipo(TipoBacheca.TEMPO_LIBERO));
             tempoLiberoBoard.aggiornaBoard();
         } else {
             setWelcomeUser("ospite");

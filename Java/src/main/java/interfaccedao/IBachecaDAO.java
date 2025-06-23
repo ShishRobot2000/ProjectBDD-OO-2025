@@ -1,4 +1,4 @@
-package interfacceDAO;
+package interfaccedao;
 
 import model.Bacheca;
 import model.TipoBacheca;

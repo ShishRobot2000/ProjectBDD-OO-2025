@@ -107,16 +107,19 @@ public class Utente {
      */
     @Override
     public String toString() {
-        String toDoString = "ToDo Condivisi: ";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Username: ").append(username).append("\n");
+        sb.append("ToDo Condivisi: ");
 
         if (toDoCondivisi != null && !toDoCondivisi.isEmpty()) {
             for (ToDo t : toDoCondivisi) {
-                toDoString += "\n  - " + t.getTitolo();
+                sb.append("\n  - ").append(t.getTitolo());
             }
         } else {
-            toDoString += "Nessuno";
+            sb.append("Nessuno");
         }
-        return "Username: " + username + "\n" + toDoString;
+
+        return sb.toString();
     }
 
     /**

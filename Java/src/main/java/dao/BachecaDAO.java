@@ -3,7 +3,7 @@ package dao;
 import model.Bacheca;
 import model.TipoBacheca;
 import database.ConnessioneDatabase;
-import interfacceDAO.IBachecaDAO;
+import interfaccedao.IBachecaDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class BachecaDAO implements IBachecaDAO {
     @Override
     public List<Bacheca> findByUtente(String username) {
         List<Bacheca> lista = new ArrayList<>();
-        String sql = "SELECT * FROM bacheca WHERE proprietario = ?";
+        String sql = "SELECT proprietario, tipo, descrizione FROM bacheca WHERE proprietario = ?";
 
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -83,7 +83,7 @@ public class BachecaDAO implements IBachecaDAO {
      */
     @Override
     public Bacheca findByTipo(String username, TipoBacheca tipo) {
-        String sql = "SELECT * FROM bacheca WHERE proprietario = ? AND tipo = ?";
+        String sql = "SELECT proprietario, tipo, descrizione FROM bacheca WHERE proprietario = ? AND tipo = ?";
 
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

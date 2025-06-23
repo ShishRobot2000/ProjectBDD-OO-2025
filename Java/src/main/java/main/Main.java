@@ -1,3 +1,5 @@
+package main;
+
 import gui.MainFrame;
 import dao.InitDAO;
 

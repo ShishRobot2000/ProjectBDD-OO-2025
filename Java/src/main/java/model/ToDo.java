@@ -40,7 +40,7 @@ public class ToDo {
         this.immagine = immagine;
         this.descrizione = descrizione;
         this.colore = colore;
-        this.stato = StatoToDo.NonCompletato;
+        this.stato = StatoToDo.NON_COMPLETATO;
         this.utentiCondivisi = new ArrayList<>();
         this.posizione = 0;
         this.id = -1;
@@ -109,7 +109,7 @@ public class ToDo {
     /** @return lo stato attuale del ToDo */
     public StatoToDo getStato() { return stato; }
 
-    /** @param stato lo stato da assegnare (Completato / NonCompletato) */
+    /** @param stato lo stato da assegnare (COMPLETATO / NON_COMPLETATO) */
     public void setStato(StatoToDo stato) { this.stato = stato; }
 
     /** @return il nome utente del proprietario del ToDo */
@@ -153,20 +153,6 @@ public class ToDo {
     public void rimuoviCondivisionePer(Utente utente) {
         if (utentiCondivisi != null) utentiCondivisi.remove(utente);
         if (utente.getToDoCondivisi() != null) utente.getToDoCondivisi().remove(this);
-    }
-
-    /**
-     * Segna questo ToDo come completato.
-     */
-    public void segnaCompletato() {
-        this.stato = StatoToDo.Completato;
-    }
-
-    /**
-     * Segna questo ToDo come non completato.
-     */
-    public void segnaNonCompletato() {
-        this.stato = StatoToDo.NonCompletato;
     }
 }
 

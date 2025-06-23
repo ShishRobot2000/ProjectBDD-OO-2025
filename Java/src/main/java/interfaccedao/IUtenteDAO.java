@@ -1,7 +1,6 @@
-package interfacceDAO;
+package interfaccedao;
 
 import model.Utente;
-import java.util.List;
 
 /**
  * Interfaccia per la gestione dei dati persistenti relativi agli utenti.

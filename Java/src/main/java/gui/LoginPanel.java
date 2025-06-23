@@ -58,9 +58,7 @@ public class LoginPanel extends JPanel {
 
         // Bottone per la registrazione
         JButton registerButton = new JButton("Registrati");
-        registerButton.addActionListener(e -> {
-            new RegistrationDialog(parent, controller); // Finestra di registrazione
-        });
+        registerButton.addActionListener(e -> new RegistrationDialog(parent, controller));
 
         gbc.gridy = 3;
         add(registerButton, gbc);

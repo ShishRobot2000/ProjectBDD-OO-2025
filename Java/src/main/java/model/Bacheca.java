@@ -17,7 +17,7 @@ public class Bacheca {
      * Costruisce una nuova bacheca con tipo e descrizione specificati.
      * Inizializza la lista dei ToDo come vuota.
      *
-     * @param tipo il tipo di bacheca (es. Universita, Lavoro, TempoLibero)
+     * @param tipo il tipo di bacheca (es. UNIVERSITA, LAVORO, TEMPO_LIBERO)
      * @param descrizione la descrizione della bacheca
      */
     public Bacheca(TipoBacheca tipo, String descrizione) {

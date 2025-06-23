@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Pannello grafico che rappresenta una bacheca (Università, Lavoro, Tempo Libero),
+ * Pannello grafico che rappresenta una bacheca (Università, LAVORO, Tempo Libero),
  * mostrando i ToDo associati e permettendo l'aggiunta e gestione degli stessi.
  */
 public class BoardPanel extends JPanel {
@@ -147,10 +147,9 @@ public class BoardPanel extends JPanel {
 
         if (utenteCorrente != null && bacheca != null) {
             for (ToDo todo : utenteCorrente.getToDoCondivisi()) {
-                if (todo.getTipoBacheca() == bacheca.getTipo()) {
-                    if (!bacheca.getToDoList().contains(todo)) {
-                        addToDo(todo);
-                    }
+                if (todo.getTipoBacheca() == bacheca.getTipo() &&
+                        !bacheca.getToDoList().contains(todo)) {
+                    addToDo(todo);
                 }
             }
         }

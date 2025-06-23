@@ -3,13 +3,13 @@ package model;
 /**
  * Rappresenta le categorie disponibili per una bacheca.
  * I tipi possibili sono:
- * - Universita: attività legate allo studio
- * - Lavoro: attività lavorative o professionali
- * - TempoLibero: attività personali o ricreative
+ * - UNIVERSITA: attività legate allo studio
+ * - LAVORO: attività lavorative o professionali
+ * - TEMPO_LIBERO: attività personali o ricreative
  */
 public enum TipoBacheca {
-    Universita,
-    Lavoro,
-    TempoLibero
+    UNIVERSITA,
+    LAVORO,
+    TEMPO_LIBERO
 }
 

@@ -1,6 +1,6 @@
 package dao;
 
-import interfacceDAO.ICondivisioneDAO;
+import interfaccedao.ICondivisioneDAO;
 import database.ConnessioneDatabase;
 
 import java.sql.Connection;
@@ -18,6 +18,10 @@ import java.util.List;
  */
 public class CondivisioneDAO implements ICondivisioneDAO {
 
+    private static final String QUERY_TODO_ID =
+            "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
+
+
     /**
      * Inserisce una richiesta di condivisione di un ToDo con uno specifico utente.
      * Se il ToDo viene trovato, la condivisione viene registrata con stato 'PENDING'.
@@ -30,7 +34,7 @@ public class CondivisioneDAO implements ICondivisioneDAO {
      */
     @Override
     public boolean condividi(String username, String prop, String tipo, String titolo) {
-        String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
+        String queryId = QUERY_TODO_ID;
         String insertCondivisione = "INSERT INTO condivisione (username_utente, id_todo, stato) VALUES (?, ?, 'PENDING')";
 
         try (Connection conn = ConnessioneDatabase.getConnection();
@@ -170,7 +174,7 @@ public class CondivisioneDAO implements ICondivisioneDAO {
      * @return true se l’operazione ha avuto successo, false altrimenti
      */
     public boolean aggiornaStatoRichiesta(String username, String proprietario, String tipo, String titolo, String nuovoStato) {
-        String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
+        String queryId = QUERY_TODO_ID;
         String updateSql = "UPDATE condivisione SET stato = ? WHERE username_utente = ? AND id_todo = ?";
         String deleteSql = "DELETE FROM condivisione WHERE username_utente = ? AND id_todo = ? AND stato = 'PENDING'";
 
@@ -225,7 +229,7 @@ public class CondivisioneDAO implements ICondivisioneDAO {
      * @return true se l'eliminazione è avvenuta con successo, false altrimenti
      */
     public boolean rimuoviRichiesta(String username, String proprietario, String tipo, String titolo) {
-        String queryId = "SELECT id FROM todo WHERE proprietario = ? AND tipo_bacheca = ? AND titolo = ?";
+        String queryId =  QUERY_TODO_ID;
         String deleteSql = "DELETE FROM condivisione WHERE username_utente = ? AND id_todo = ? AND stato = 'PENDING'";
 
         try (Connection conn = ConnessioneDatabase.getConnection();

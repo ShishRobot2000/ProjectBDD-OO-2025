@@ -3,7 +3,7 @@ package controller;
 import gui.*;
 import model.*;
 import dao.*;
-import interfacceDAO.*;
+import interfaccedao.*;
 
 import javax.swing.*;
 
@@ -33,7 +33,7 @@ public class Controller {
      * Inizializza i pannelli bacheca e i DAO per l'accesso ai dati.
      *
      * @param universitaBoard pannello per la bacheca Università
-     * @param lavoroBoard pannello per la bacheca Lavoro
+     * @param lavoroBoard pannello per la bacheca LAVORO
      * @param tempoLiberoBoard pannello per la bacheca Tempo Libero
      */
     public Controller(BoardPanel universitaBoard, BoardPanel lavoroBoard, BoardPanel tempoLiberoBoard) {
@@ -154,11 +154,11 @@ public class Controller {
                     try {
                         LocalDate dataScadenza = LocalDate.parse(todo.getDataDiScadenza());
                         if (!dataScadenza.isAfter(oggi)) {
-                            if (todo.getStato() == StatoToDo.Completato) {
-                                todo.setStato(StatoToDo.NonCompletato);
+                            if (todo.getStato() == StatoToDo.COMPLETATO) {
+                                todo.setStato(StatoToDo.NON_COMPLETATO);
                                 toDoDAO.aggiorna(todo, username, tipo);
                             }
-                            if (todo.getStato() == StatoToDo.NonCompletato) {
+                            if (todo.getStato() == StatoToDo.NON_COMPLETATO) {
                                 avvisi.append("- ").append(todo.getTitolo()).append("\n");
                             }
                         }
@@ -171,9 +171,9 @@ public class Controller {
             b.setToDoList(todos);
 
             BoardPanel target = switch (tipo) {
-                case Universita -> universitaBoard;
-                case Lavoro -> lavoroBoard;
-                case TempoLibero -> tempoLiberoBoard;
+                case UNIVERSITA -> universitaBoard;
+                case LAVORO -> lavoroBoard;
+                case TEMPO_LIBERO -> tempoLiberoBoard;
             };
 
             target.setBacheca(b);
@@ -317,9 +317,9 @@ public class Controller {
             boolean result = utenteDAO.salvaUtente(nuovoUtente);
 
             if (result) {
-                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.Universita, "Bacheca Università"), username);
-                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.Lavoro, "Bacheca Lavoro"), username);
-                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.TempoLibero, "Bacheca Tempo Libero"), username);
+                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.UNIVERSITA, "Bacheca Università"), username);
+                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.LAVORO, "Bacheca LAVORO"), username);
+                bachecaDAO.salvaBacheca(new Bacheca(TipoBacheca.TEMPO_LIBERO, "Bacheca Tempo Libero"), username);
             }
 
             return result;
@@ -358,10 +358,10 @@ public class Controller {
      * @param todo ToDo da modificare
      */
     public void toggleCompletamento(BoardPanel board, ToDo todo) {
-        if (todo.getStato() == StatoToDo.Completato) {
-            todo.setStato(StatoToDo.NonCompletato);
+        if (todo.getStato() == StatoToDo.COMPLETATO) {
+            todo.setStato(StatoToDo.NON_COMPLETATO);
         } else {
-            todo.setStato(StatoToDo.Completato);
+            todo.setStato(StatoToDo.COMPLETATO);
         }
 
         Bacheca bacheca = board.getBacheca();

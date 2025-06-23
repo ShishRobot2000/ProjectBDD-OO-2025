@@ -1,7 +1,7 @@
 package dao;
 
 import model.Utente;
-import interfacceDAO.IUtenteDAO;
+import interfaccedao.IUtenteDAO;
 import database.ConnessioneDatabase;
 
 import java.sql.*;
@@ -49,7 +49,7 @@ public class UtenteDAO implements IUtenteDAO {
      */
     @Override
     public Utente findByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT * FROM utente WHERE username = ? AND password = ?";
+        String sql = "SELECT username, password FROM utente WHERE username = ? AND password = ?";
 
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -76,7 +76,7 @@ public class UtenteDAO implements IUtenteDAO {
      */
     @Override
     public Utente findByUsername(String username) {
-        String sql = "SELECT * FROM utente WHERE username = ?";
+        String sql = "SELECT username, password FROM utente WHERE username = ?";
 
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -129,9 +129,11 @@ public class UtenteDAO implements IUtenteDAO {
                     "DELETE FROM condivisione WHERE id_todo = ?")) {
                 for (Integer id : idToDoUtente) {
                     stmt.setInt(1, id);
-                    stmt.executeUpdate();
+                    stmt.addBatch();
                 }
+                stmt.executeBatch();
             }
+
 
             // 4. Elimina i ToDo
             try (PreparedStatement stmt = conn.prepareStatement(

@@ -18,7 +18,7 @@ import java.awt.event.MouseEvent;
 public class ToDoCardPanel extends JPanel {
 
     private ToDo todo;
-    private BoardPanel parent;
+    private BoardPanel boardPanel;
     private Controller controller;
     private Utente utenteCorrente;
 
@@ -32,7 +32,7 @@ public class ToDoCardPanel extends JPanel {
      */
     public ToDoCardPanel(ToDo todo, BoardPanel boardPanel, Controller controller, Utente utenteCorrente) {
         this.todo = todo;
-        this.parent = boardPanel;
+        this.boardPanel = boardPanel;
         this.controller = controller;
         this.utenteCorrente = utenteCorrente;
 
@@ -60,15 +60,15 @@ public class ToDoCardPanel extends JPanel {
 
         JPanel buttonPanel = new JPanel();
 
-        JCheckBox checkCompletato = new JCheckBox("Completato");
-        checkCompletato.setSelected(todo.getStato() == StatoToDo.Completato);
+        JCheckBox checkCompletato = new JCheckBox("COMPLETATO");
+        checkCompletato.setSelected(todo.getStato() == StatoToDo.COMPLETATO);
         checkCompletato.setEnabled(!isCondiviso);
         if (isCondiviso) {
             checkCompletato.setToolTipText("Non puoi modificare un ToDo condiviso");
         }
         checkCompletato.addActionListener(e -> {
             if (!isCondiviso) {
-                controller.toggleCompletamento(parent, todo);
+                controller.toggleCompletamento(this.boardPanel, todo);
             }
         });
 
@@ -102,8 +102,8 @@ public class ToDoCardPanel extends JPanel {
 
                     if (success) {
                         utenteCorrente.rimuoviToDoCondiviso(todo);
-                        if (parent != null) {
-                            parent.refresh();
+                        if (this.boardPanel != null) {
+                            this.boardPanel.refresh();
                         }
                     } else {
                         JOptionPane.showMessageDialog(this, "Errore durante la rimozione della condivisione dal database", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -141,7 +141,7 @@ public class ToDoCardPanel extends JPanel {
      * @param isEditable true se il dialogo deve essere in modalità modifica
      */
     private void openEditDialog(boolean isEditable) {
-        controller.editToDo(parent, todo, isEditable, this::updateCardContent);
+        controller.editToDo(boardPanel, todo, isEditable, this::updateCardContent);
     }
 
     /**
@@ -168,15 +168,15 @@ public class ToDoCardPanel extends JPanel {
 
         JPanel buttonPanel = new JPanel();
 
-        JCheckBox checkCompletato = new JCheckBox("Completato");
-        checkCompletato.setSelected(todo.getStato() == StatoToDo.Completato);
+        JCheckBox checkCompletato = new JCheckBox("COMPLETATO");
+        checkCompletato.setSelected(todo.getStato() == StatoToDo.COMPLETATO);
         checkCompletato.setEnabled(!isCondiviso);
         if (isCondiviso) {
             checkCompletato.setToolTipText("Non puoi modificare un ToDo condiviso");
         }
         checkCompletato.addActionListener(e -> {
             if (!isCondiviso) {
-                controller.toggleCompletamento(parent, todo);
+                controller.toggleCompletamento(boardPanel, todo);
             }
         });
 
@@ -193,8 +193,8 @@ public class ToDoCardPanel extends JPanel {
         btnRemove.addActionListener(e -> {
             if (isCondiviso) {
                 utenteCorrente.rimuoviToDoCondiviso(todo);
-                if (parent != null) {
-                    parent.refresh();
+                if (boardPanel != null) {
+                    boardPanel.refresh();
                 }
             } else {
                 removeToDo();
@@ -212,8 +212,8 @@ public class ToDoCardPanel extends JPanel {
      * Rimuove il ToDo dal pannello genitore.
      */
     private void removeToDo() {
-        if (parent != null) {
-            parent.removeToDo(todo);
+        if (boardPanel != null) {
+            boardPanel.removeToDo(todo);
         }
     }
 }

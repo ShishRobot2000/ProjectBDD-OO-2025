@@ -3,7 +3,7 @@ package dao;
 import model.ToDo;
 import model.StatoToDo;
 import model.TipoBacheca;
-import interfacceDAO.IToDoDAO;
+import interfaccedao.IToDoDAO;
 import database.ConnessioneDatabase;
 
 import java.sql.*;
@@ -15,7 +15,6 @@ import java.util.List;
  * Fornisce operazioni CRUD e metodi di supporto per la gestione di ToDo e condivisioni.
  */
 public class ToDoDAO implements IToDoDAO {
-
     /**
      * Salva un nuovo ToDo nel database, aggiornando le posizioni esistenti e assegnando un nuovo ID.
      *
