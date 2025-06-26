@@ -82,6 +82,65 @@ $$;
 ALTER FUNCTION public.aggiorna_todo(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_posizione integer) OWNER TO postgres;
 
 --
+-- Name: aggiorna_todo_parziale(integer, text, text, text, text, text, text, bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text DEFAULT NULL::text, p_descrizione text DEFAULT NULL::text, p_data_scadenza text DEFAULT NULL::text, p_colore text DEFAULT NULL::text, p_stato text DEFAULT NULL::text, p_url text DEFAULT NULL::text, p_immagine bytea DEFAULT NULL::bytea, p_posizione integer DEFAULT NULL::integer) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    query TEXT := 'UPDATE todo SET ';
+    first BOOLEAN := TRUE;
+BEGIN
+    IF p_titolo IS NOT NULL THEN
+        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'titolo = ' || quote_literal(p_titolo);
+        first := FALSE;
+    END IF;
+    IF p_descrizione IS NOT NULL THEN
+        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'descrizione = ' || quote_literal(p_descrizione);
+        first := FALSE;
+    END IF;
+    IF p_data_scadenza IS NOT NULL THEN
+        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'data_scadenza = ' || quote_literal(p_data_scadenza);
+        first := FALSE;
+    END IF;
+    IF p_colore IS NOT NULL THEN
+        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'colore = ' || quote_literal(p_colore);
+        first := FALSE;
+    END IF;
+    IF p_stato IS NOT NULL THEN
+        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'stato = ' || quote_literal(p_stato);
+        first := FALSE;
+    END IF;
+    IF p_url IS NOT NULL THEN
+        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'url = ' || quote_literal(p_url);
+        first := FALSE;
+    END IF;
+    IF p_immagine IS NOT NULL THEN
+        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'immagine = ' || quote_literal(encode(p_immagine, 'base64')::bytea);
+        first := FALSE;
+    END IF;
+    IF p_posizione IS NOT NULL THEN
+        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'posizione = ' || p_posizione;
+        first := FALSE;
+    END IF;
+
+    IF first THEN
+        RETURN FALSE; -- nessun campo aggiornato
+    END IF;
+
+    query := query || ' WHERE id = ' || p_id;
+
+    EXECUTE query;
+
+    RETURN FOUND;
+END;
+$$;
+
+
+ALTER FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_posizione integer) OWNER TO postgres;
+
+--
 -- Name: check_bacheche_standard(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -141,6 +200,39 @@ $$;
 
 
 ALTER FUNCTION public.condividi_todo(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) OWNER TO postgres;
+
+--
+-- Name: condividi_todo_id(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.condividi_todo_id(p_destinatario text, p_id_todo integer) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    v_count INTEGER;
+BEGIN
+    -- Verifica che il ToDo esista
+    SELECT COUNT(*) INTO v_count
+    FROM todo
+    WHERE id = p_id_todo;
+
+    IF v_count = 0 THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Inserisce la condivisione se tutto Š ok
+    INSERT INTO condivisione (username_utente, id_todo, stato)
+    VALUES (p_destinatario, p_id_todo, 'PENDING');
+
+    RETURN TRUE;
+
+EXCEPTION WHEN OTHERS THEN
+    RETURN FALSE;
+END;
+$$;
+
+
+ALTER FUNCTION public.condividi_todo_id(p_destinatario text, p_id_todo integer) OWNER TO postgres;
 
 --
 -- Name: crea_bacheche_standard(); Type: FUNCTION; Schema: public; Owner: postgres
