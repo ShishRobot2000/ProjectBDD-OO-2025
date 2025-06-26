@@ -172,40 +172,10 @@ $$;
 ALTER FUNCTION public.check_bacheche_standard() OWNER TO postgres;
 
 --
--- Name: condividi_todo(text, text, text, text); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: condividi_todo(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.condividi_todo(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) RETURNS boolean
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    v_id INTEGER;
-BEGIN
-    SELECT id INTO v_id
-    FROM todo
-    WHERE proprietario = p_proprietario AND tipo_bacheca = p_tipo_bacheca AND titolo = p_titolo;
-
-    IF NOT FOUND THEN
-        RETURN FALSE;
-    END IF;
-
-    INSERT INTO condivisione (username_utente, id_todo, stato)
-    VALUES (p_destinatario, v_id, 'PENDING');
-
-    RETURN TRUE;
-EXCEPTION WHEN OTHERS THEN
-    RETURN FALSE;
-END;
-$$;
-
-
-ALTER FUNCTION public.condividi_todo(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) OWNER TO postgres;
-
---
--- Name: condividi_todo_id(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.condividi_todo_id(p_destinatario text, p_id_todo integer) RETURNS boolean
+CREATE FUNCTION public.condividi_todo(p_destinatario text, p_id_todo integer) RETURNS boolean
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -220,7 +190,7 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- Inserisce la condivisione se tutto Š ok
+    -- Inserisce la condivisione
     INSERT INTO condivisione (username_utente, id_todo, stato)
     VALUES (p_destinatario, p_id_todo, 'PENDING');
 
@@ -232,7 +202,7 @@ END;
 $$;
 
 
-ALTER FUNCTION public.condividi_todo_id(p_destinatario text, p_id_todo integer) OWNER TO postgres;
+ALTER FUNCTION public.condividi_todo(p_destinatario text, p_id_todo integer) OWNER TO postgres;
 
 --
 -- Name: crea_bacheche_standard(); Type: FUNCTION; Schema: public; Owner: postgres
