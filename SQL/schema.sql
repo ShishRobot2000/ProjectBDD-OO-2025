@@ -63,18 +63,18 @@ CREATE FUNCTION public.aggiorna_todo(p_id integer, p_titolo text, p_descrizione 
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    UPDATE todo
-    SET titolo = p_titolo,
-        descrizione = p_descrizione,
-        data_scadenza = p_data_scadenza,
-        colore = p_colore,
-        stato = p_stato,
-        url = p_url,
-        immagine = p_immagine,
-        posizione = p_posizione
-    WHERE id = p_id;
+  UPDATE todo
+  SET titolo = p_titolo,
+      descrizione = p_descrizione,
+      data_scadenza = p_data_scadenza,
+      colore = p_colore,
+      stato = p_stato,
+      url = p_url,
+      immagine = p_immagine,
+      posizione = p_posizione
+  WHERE id = p_id;
 
-    RETURN FOUND;
+  RETURN FOUND;
 END;
 $$;
 
@@ -85,60 +85,98 @@ ALTER FUNCTION public.aggiorna_todo(p_id integer, p_titolo text, p_descrizione t
 -- Name: aggiorna_todo_parziale(integer, text, text, text, text, text, text, bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text DEFAULT NULL::text, p_descrizione text DEFAULT NULL::text, p_data_scadenza text DEFAULT NULL::text, p_colore text DEFAULT NULL::text, p_stato text DEFAULT NULL::text, p_url text DEFAULT NULL::text, p_immagine bytea DEFAULT NULL::bytea, p_posizione integer DEFAULT NULL::integer) RETURNS boolean
+CREATE FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_posizione integer) RETURNS boolean
     LANGUAGE plpgsql
     AS $$
 DECLARE
-    query TEXT := 'UPDATE todo SET ';
-    first BOOLEAN := TRUE;
+    v_sql TEXT := 'UPDATE todo SET ';
+    v_sep TEXT := '';
 BEGIN
     IF p_titolo IS NOT NULL THEN
-        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'titolo = ' || quote_literal(p_titolo);
-        first := FALSE;
+        v_sql := v_sql || v_sep || 'titolo = ' || quote_literal(p_titolo);
+        v_sep := ', ';
     END IF;
+
     IF p_descrizione IS NOT NULL THEN
-        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'descrizione = ' || quote_literal(p_descrizione);
-        first := FALSE;
+        v_sql := v_sql || v_sep || 'descrizione = ' || quote_literal(p_descrizione);
+        v_sep := ', ';
     END IF;
+
     IF p_data_scadenza IS NOT NULL THEN
-        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'data_scadenza = ' || quote_literal(p_data_scadenza);
-        first := FALSE;
+        v_sql := v_sql || v_sep || 'data_scadenza = ' || quote_literal(p_data_scadenza);
+        v_sep := ', ';
     END IF;
+
     IF p_colore IS NOT NULL THEN
-        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'colore = ' || quote_literal(p_colore);
-        first := FALSE;
+        v_sql := v_sql || v_sep || 'colore = ' || quote_literal(p_colore);
+        v_sep := ', ';
     END IF;
+
     IF p_stato IS NOT NULL THEN
-        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'stato = ' || quote_literal(p_stato);
-        first := FALSE;
+        v_sql := v_sql || v_sep || 'stato = ' || quote_literal(p_stato);
+        v_sep := ', ';
     END IF;
+
     IF p_url IS NOT NULL THEN
-        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'url = ' || quote_literal(p_url);
-        first := FALSE;
+        v_sql := v_sql || v_sep || 'url = ' || quote_literal(p_url);
+        v_sep := ', ';
     END IF;
+
     IF p_immagine IS NOT NULL THEN
-        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'immagine = ' || quote_literal(encode(p_immagine, 'base64')::bytea);
-        first := FALSE;
+        v_sql := v_sql || v_sep || 'immagine = ' || quote_literal(encode(p_immagine, 'hex')::bytea);
+        v_sep := ', ';
     END IF;
+
     IF p_posizione IS NOT NULL THEN
-        query := query || (CASE WHEN NOT first THEN ', ' ELSE '' END) || 'posizione = ' || p_posizione;
-        first := FALSE;
+        v_sql := v_sql || v_sep || 'posizione = ' || p_posizione;
+        v_sep := ', ';
     END IF;
 
-    IF first THEN
-        RETURN FALSE; -- nessun campo aggiornato
+    IF v_sep = '' THEN
+        -- Nessun campo da aggiornare
+        RETURN FALSE;
     END IF;
 
-    query := query || ' WHERE id = ' || p_id;
+    v_sql := v_sql || ' WHERE id = ' || p_id;
 
-    EXECUTE query;
-
+    EXECUTE v_sql;
     RETURN FOUND;
 END;
 $$;
 
 
 ALTER FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_posizione integer) OWNER TO postgres;
+
+--
+-- Name: cancella_immagine_todo(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.cancella_immagine_todo(p_id integer) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  v_check BYTEA;
+BEGIN
+  -- Controlla se il ToDo esiste e ha immagine
+  SELECT immagine INTO v_check
+  FROM todo
+  WHERE id = p_id;
+
+  IF NOT FOUND OR v_check IS NULL THEN
+    RETURN FALSE;
+  END IF;
+
+  -- Cancella immagine
+  UPDATE todo
+  SET immagine = NULL
+  WHERE id = p_id;
+
+  RETURN TRUE;
+END;
+$$;
+
+
+ALTER FUNCTION public.cancella_immagine_todo(p_id integer) OWNER TO postgres;
 
 --
 -- Name: check_bacheche_standard(); Type: FUNCTION; Schema: public; Owner: postgres
@@ -172,6 +210,24 @@ $$;
 ALTER FUNCTION public.check_bacheche_standard() OWNER TO postgres;
 
 --
+-- Name: check_colore_todo(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.check_colore_todo() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF LEFT(NEW.colore, 1) = '#' THEN
+    RAISE EXCEPTION 'Il colore non pu• iniziare con #. Valore ricevuto: %', NEW.colore;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.check_colore_todo() OWNER TO postgres;
+
+--
 -- Name: condividi_todo(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -179,25 +235,23 @@ CREATE FUNCTION public.condividi_todo(p_destinatario text, p_id_todo integer) RE
     LANGUAGE plpgsql
     AS $$
 DECLARE
-    v_count INTEGER;
+  v_count INTEGER;
 BEGIN
-    -- Verifica che il ToDo esista
-    SELECT COUNT(*) INTO v_count
-    FROM todo
-    WHERE id = p_id_todo;
+  SELECT COUNT(*) INTO v_count
+  FROM todo
+  WHERE id = p_id_todo;
 
-    IF v_count = 0 THEN
-        RETURN FALSE;
-    END IF;
+  IF v_count = 0 THEN
+    RETURN FALSE;
+  END IF;
 
-    -- Inserisce la condivisione
-    INSERT INTO condivisione (username_utente, id_todo, stato)
-    VALUES (p_destinatario, p_id_todo, 'PENDING');
+  INSERT INTO condivisione (username_utente, id_todo, stato)
+  VALUES (p_destinatario, p_id_todo, 'PENDING');
 
-    RETURN TRUE;
+  RETURN TRUE;
 
 EXCEPTION WHEN OTHERS THEN
-    RETURN FALSE;
+  RETURN FALSE;
 END;
 $$;
 
@@ -447,6 +501,26 @@ $$;
 
 
 ALTER FUNCTION public.mostra_funzioni() OWNER TO postgres;
+
+--
+-- Name: mostra_view(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.mostra_view() RETURNS TABLE(nome_view text, definizione text)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    viewname::TEXT,
+    definition::TEXT
+  FROM pg_views
+  WHERE schemaname = 'public';
+END;
+$$;
+
+
+ALTER FUNCTION public.mostra_view() OWNER TO postgres;
 
 --
 -- Name: richieste_pendenti_per_utente(text); Type: FUNCTION; Schema: public; Owner: postgres
@@ -769,6 +843,26 @@ CREATE TABLE public.utente (
 ALTER TABLE public.utente OWNER TO postgres;
 
 --
+-- Name: vista_todo_senza_immagine; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.vista_todo_senza_immagine AS
+ SELECT id,
+    titolo,
+    descrizione,
+    data_scadenza,
+    colore,
+    stato,
+    url,
+    posizione,
+    proprietario,
+    tipo_bacheca
+   FROM public.todo;
+
+
+ALTER VIEW public.vista_todo_senza_immagine OWNER TO postgres;
+
+--
 -- Name: todo id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -842,6 +936,13 @@ CREATE TRIGGER trg_crea_bacheche AFTER INSERT ON public.utente FOR EACH ROW EXEC
 --
 
 CREATE TRIGGER trg_default_stato BEFORE INSERT ON public.todo FOR EACH ROW EXECUTE FUNCTION public.default_stato_todo();
+
+
+--
+-- Name: todo trigger_check_colore_todo; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trigger_check_colore_todo BEFORE INSERT OR UPDATE ON public.todo FOR EACH ROW EXECUTE FUNCTION public.check_colore_todo();
 
 
 --
