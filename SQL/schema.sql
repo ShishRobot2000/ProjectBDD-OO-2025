@@ -18,42 +18,41 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: aggiorna_stato_condivisione(text, text, text, text, text); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: aggiorna_stato_condivisione(text, integer, text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.aggiorna_stato_condivisione(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text, p_nuovo_stato text) RETURNS boolean
+CREATE FUNCTION public.aggiorna_stato_condivisione(p_destinatario text, p_id_todo integer, p_nuovo_stato text) RETURNS void
     LANGUAGE plpgsql
     AS $$
-DECLARE
-    v_id INTEGER;
 BEGIN
-    SELECT id INTO v_id
-    FROM todo
-    WHERE proprietario = p_proprietario AND tipo_bacheca = p_tipo_bacheca AND titolo = p_titolo;
-
-    IF NOT FOUND THEN
-        RETURN FALSE;
-    END IF;
-
     IF UPPER(p_nuovo_stato) = 'ACCEPTED' THEN
         UPDATE condivisione
         SET stato = 'ACCEPTED'
-        WHERE username_utente = p_destinatario AND id_todo = v_id;
-        RETURN FOUND;
+        WHERE username_utente = p_destinatario
+          AND id_todo = p_id_todo;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Nessuna condivisione trovata da aggiornare';
+        END IF;
 
     ELSIF UPPER(p_nuovo_stato) = 'REJECTED' THEN
         DELETE FROM condivisione
-        WHERE username_utente = p_destinatario AND id_todo = v_id AND stato = 'PENDING';
-        RETURN FOUND;
+        WHERE username_utente = p_destinatario
+          AND id_todo = p_id_todo
+          AND stato = 'PENDING'; -- sicurezza: rimuove solo richieste non ancora accettate
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Nessuna richiesta PENDING trovata da rimuovere';
+        END IF;
 
     ELSE
-        RAISE EXCEPTION 'Stato non valido: %', p_nuovo_stato;
+        RAISE EXCEPTION 'Stato non valido: usa solo ACCEPTED o REJECTED';
     END IF;
 END;
 $$;
 
 
-ALTER FUNCTION public.aggiorna_stato_condivisione(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text, p_nuovo_stato text) OWNER TO postgres;
+ALTER FUNCTION public.aggiorna_stato_condivisione(p_destinatario text, p_id_todo integer, p_nuovo_stato text) OWNER TO postgres;
 
 --
 -- Name: aggiorna_todo(integer, text, text, text, text, text, text, bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
@@ -365,124 +364,27 @@ $$;
 ALTER FUNCTION public.elimina_utente(p_username text) OWNER TO postgres;
 
 --
--- Name: esiste_condivisione(text, text, text, text); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: esiste_condivisione(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.esiste_condivisione(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) RETURNS boolean
+CREATE FUNCTION public.esiste_condivisione(p_destinatario text, p_id_todo integer) RETURNS boolean
     LANGUAGE plpgsql
     AS $$
 DECLARE
-    v_exists BOOLEAN;
+    exists_bool boolean;
 BEGIN
     SELECT EXISTS (
-        SELECT 1
-        FROM condivisione c
-        JOIN todo t ON c.id_todo = t.id
-        WHERE c.username_utente = p_destinatario
-        AND t.proprietario = p_proprietario
-        AND t.tipo_bacheca = p_tipo_bacheca
-        AND t.titolo = p_titolo
-    ) INTO v_exists;
+        SELECT 1 FROM condivisione
+        WHERE username_utente = p_destinatario
+          AND id_todo = p_id_todo
+    ) INTO exists_bool;
 
-    RETURN v_exists;
+    RETURN exists_bool;
 END;
 $$;
 
 
-ALTER FUNCTION public.esiste_condivisione(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) OWNER TO postgres;
-
---
--- Name: esiste_utente(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.esiste_utente(p_username text) RETURNS boolean
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    exists BOOLEAN;
-BEGIN
-    SELECT EXISTS (
-        SELECT 1 FROM utente WHERE username = TRIM(p_username)
-    ) INTO exists;
-
-    RETURN exists;
-END;
-$$;
-
-
-ALTER FUNCTION public.esiste_utente(p_username text) OWNER TO postgres;
-
---
--- Name: get_bacheca_by_tipo(character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.get_bacheca_by_tipo(p_username character varying, p_tipo character varying) RETURNS TABLE(tipo character varying, descrizione text, proprietario character varying)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RETURN QUERY
-    SELECT tipo, descrizione, proprietario
-    FROM bacheca
-    WHERE proprietario = p_username AND tipo = p_tipo;
-END;
-$$;
-
-
-ALTER FUNCTION public.get_bacheca_by_tipo(p_username character varying, p_tipo character varying) OWNER TO postgres;
-
---
--- Name: get_bacheche_by_utente(character varying); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.get_bacheche_by_utente(p_username character varying) RETURNS TABLE(tipo character varying, descrizione text, proprietario character varying)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RETURN QUERY
-    SELECT tipo, descrizione, proprietario
-    FROM bacheca
-    WHERE proprietario = p_username;
-END;
-$$;
-
-
-ALTER FUNCTION public.get_bacheche_by_utente(p_username character varying) OWNER TO postgres;
-
---
--- Name: get_utente_by_credenziali(text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.get_utente_by_credenziali(p_username text, p_password text) RETURNS TABLE(username text, password text)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RETURN QUERY
-    SELECT username, password
-    FROM utente
-    WHERE username = p_username AND password = p_password;
-END;
-$$;
-
-
-ALTER FUNCTION public.get_utente_by_credenziali(p_username text, p_password text) OWNER TO postgres;
-
---
--- Name: get_utente_by_username(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.get_utente_by_username(p_username text) RETURNS TABLE(username text, password text)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RETURN QUERY
-    SELECT username, password
-    FROM utente
-    WHERE username = TRIM(p_username);
-END;
-$$;
-
-
-ALTER FUNCTION public.get_utente_by_username(p_username text) OWNER TO postgres;
+ALTER FUNCTION public.esiste_condivisione(p_destinatario text, p_id_todo integer) OWNER TO postgres;
 
 --
 -- Name: mostra_funzioni(); Type: FUNCTION; Schema: public; Owner: postgres
@@ -531,7 +433,10 @@ CREATE FUNCTION public.richieste_pendenti_per_utente(p_username text) RETURNS TA
     AS $$
 BEGIN
     RETURN QUERY
-    SELECT t.proprietario, t.tipo_bacheca, t.titolo
+    SELECT 
+        t.proprietario::text, 
+        t.tipo_bacheca::text, 
+        t.titolo::text
     FROM condivisione c
     JOIN todo t ON c.id_todo = t.id
     WHERE c.username_utente = p_username AND c.stato = 'PENDING';
@@ -542,103 +447,48 @@ $$;
 ALTER FUNCTION public.richieste_pendenti_per_utente(p_username text) OWNER TO postgres;
 
 --
--- Name: rimuovi_condivisione(text, text, text, text); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: rimuovi_condivisione(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.rimuovi_condivisione(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) RETURNS boolean
+CREATE FUNCTION public.rimuovi_condivisione(p_destinatario text, p_id_todo integer) RETURNS void
     LANGUAGE plpgsql
     AS $$
-DECLARE
-    v_id INTEGER;
 BEGIN
-    SELECT id INTO v_id
-    FROM todo
-    WHERE proprietario = p_proprietario AND tipo_bacheca = p_tipo_bacheca AND titolo = p_titolo;
-
-    IF NOT FOUND THEN
-        RETURN FALSE;
-    END IF;
-
     DELETE FROM condivisione
-    WHERE username_utente = p_destinatario AND id_todo = v_id;
-
-    RETURN FOUND;
+    WHERE username_utente = p_destinatario
+      AND id_todo = p_id_todo;
 END;
 $$;
 
 
-ALTER FUNCTION public.rimuovi_condivisione(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) OWNER TO postgres;
+ALTER FUNCTION public.rimuovi_condivisione(p_destinatario text, p_id_todo integer) OWNER TO postgres;
 
 --
--- Name: rimuovi_richiesta_pendente(text, text, text, text); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: salva_todo(text, text, text, text, text, bytea, text, text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.rimuovi_richiesta_pendente(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) RETURNS boolean
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    v_id INTEGER;
-BEGIN
-    SELECT id INTO v_id
-    FROM todo
-    WHERE proprietario = p_proprietario AND tipo_bacheca = p_tipo_bacheca AND titolo = p_titolo;
-
-    IF NOT FOUND THEN
-        RETURN FALSE;
-    END IF;
-
-    DELETE FROM condivisione
-    WHERE username_utente = p_destinatario AND id_todo = v_id AND stato = 'PENDING';
-
-    RETURN FOUND;
-END;
-$$;
-
-
-ALTER FUNCTION public.rimuovi_richiesta_pendente(p_destinatario text, p_proprietario text, p_tipo_bacheca text, p_titolo text) OWNER TO postgres;
-
---
--- Name: salva_bacheca(character varying, text, character varying); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.salva_bacheca(p_tipo character varying, p_descrizione text, p_proprietario character varying) RETURNS boolean
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    INSERT INTO bacheca (tipo, descrizione, proprietario)
-    VALUES (p_tipo, p_descrizione, p_proprietario);
-    RETURN TRUE;
-EXCEPTION
-    WHEN OTHERS THEN
-        RETURN FALSE;
-END;
-$$;
-
-
-ALTER FUNCTION public.salva_bacheca(p_tipo character varying, p_descrizione text, p_proprietario character varying) OWNER TO postgres;
-
---
--- Name: salva_todo(text, text, text, text, text, text, bytea, text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.salva_todo(p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_proprietario text, p_tipo_bacheca text) RETURNS integer
+CREATE FUNCTION public.salva_todo(p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_url text, p_immagine bytea, p_proprietario text, p_tipo_bacheca text) RETURNS integer
     LANGUAGE plpgsql
     AS $$
 DECLARE
     new_id INTEGER;
+    colore_finale text;
 BEGIN
-    -- Shift delle posizioni esistenti
+    -- Colore default a 'FFFFFF' (senza cancelletto)
+    colore_finale := COALESCE(p_colore, 'FFFFFF');
+
+    -- Shift posizioni
     UPDATE todo
     SET posizione = posizione + 1
     WHERE proprietario = p_proprietario AND tipo_bacheca = p_tipo_bacheca;
 
-    -- Inserimento nuovo ToDo
+    -- Inserimento
     INSERT INTO todo (
         titolo, descrizione, data_scadenza, colore, stato,
         url, immagine, posizione, proprietario, tipo_bacheca
     )
     VALUES (
-        p_titolo, p_descrizione, p_data_scadenza, p_colore, p_stato,
+        p_titolo, p_descrizione, p_data_scadenza, colore_finale, 'NON_COMPLETATO',
         p_url, p_immagine, 1, p_proprietario, p_tipo_bacheca
     )
     RETURNING id INTO new_id;
@@ -648,7 +498,7 @@ END;
 $$;
 
 
-ALTER FUNCTION public.salva_todo(p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_proprietario text, p_tipo_bacheca text) OWNER TO postgres;
+ALTER FUNCTION public.salva_todo(p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_url text, p_immagine bytea, p_proprietario text, p_tipo_bacheca text) OWNER TO postgres;
 
 --
 -- Name: salva_utente(text, text); Type: FUNCTION; Schema: public; Owner: postgres
@@ -675,27 +525,6 @@ $$;
 ALTER FUNCTION public.salva_utente(p_username text, p_password text) OWNER TO postgres;
 
 --
--- Name: todo_condivisi_con(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.todo_condivisi_con(p_username text) RETURNS TABLE(id integer, titolo text, data_scadenza text, url text, immagine bytea, descrizione text, colore text, posizione integer, stato text, proprietario text, tipo_bacheca text)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RETURN QUERY
-    SELECT t.id, t.titolo, t.data_scadenza, t.url, t.immagine, t.descrizione,
-           t.colore, t.posizione, t.stato, t.proprietario, t.tipo_bacheca
-    FROM condivisione c
-    JOIN todo t ON c.id_todo = t.id
-    WHERE c.username_utente = p_username AND c.stato = 'ACCEPTED'
-    ORDER BY t.tipo_bacheca, t.posizione;
-END;
-$$;
-
-
-ALTER FUNCTION public.todo_condivisi_con(p_username text) OWNER TO postgres;
-
---
 -- Name: trova_todo_per_bacheca(text, text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -713,25 +542,6 @@ $$;
 
 
 ALTER FUNCTION public.trova_todo_per_bacheca(p_proprietario text, p_tipo_bacheca text) OWNER TO postgres;
-
---
--- Name: utenti_condivisi(text, text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.utenti_condivisi(p_proprietario text, p_tipo_bacheca text, p_titolo text) RETURNS TABLE(username text)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RETURN QUERY
-    SELECT c.username_utente
-    FROM condivisione c
-    JOIN todo t ON c.id_todo = t.id
-    WHERE t.proprietario = p_proprietario AND t.tipo_bacheca = p_tipo_bacheca AND t.titolo = p_titolo;
-END;
-$$;
-
-
-ALTER FUNCTION public.utenti_condivisi(p_proprietario text, p_tipo_bacheca text, p_titolo text) OWNER TO postgres;
 
 SET default_tablespace = '';
 
