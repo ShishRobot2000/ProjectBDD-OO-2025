@@ -586,17 +586,6 @@ CREATE TABLE public.statotodo (
 ALTER TABLE public.statotodo OWNER TO postgres;
 
 --
--- Name: tipobacheca; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.tipobacheca (
-    nome character varying(30) NOT NULL
-);
-
-
-ALTER TABLE public.tipobacheca OWNER TO postgres;
-
---
 -- Name: todo; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -704,14 +693,6 @@ ALTER TABLE ONLY public.statotodo
 
 
 --
--- Name: tipobacheca tipobacheca_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tipobacheca
-    ADD CONSTRAINT tipobacheca_pkey PRIMARY KEY (nome);
-
-
---
 -- Name: todo todo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -761,14 +742,6 @@ CREATE TRIGGER trigger_check_colore_todo BEFORE INSERT OR UPDATE ON public.todo 
 
 ALTER TABLE ONLY public.bacheca
     ADD CONSTRAINT bacheca_proprietario_fkey FOREIGN KEY (proprietario) REFERENCES public.utente(username);
-
-
---
--- Name: bacheca bacheca_tipo_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.bacheca
-    ADD CONSTRAINT bacheca_tipo_fkey FOREIGN KEY (tipo) REFERENCES public.tipobacheca(nome);
 
 
 --
