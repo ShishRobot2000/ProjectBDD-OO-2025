@@ -24,9 +24,6 @@ SET row_security = off;
 INSERT INTO public.tipobacheca VALUES ('UNIVERSITA');
 INSERT INTO public.tipobacheca VALUES ('LAVORO');
 INSERT INTO public.tipobacheca VALUES ('TEMPO_LIBERO');
-INSERT INTO public.tipobacheca VALUES ('Universita');
-INSERT INTO public.tipobacheca VALUES ('Lavoro');
-INSERT INTO public.tipobacheca VALUES ('TempoLibero');
 
 
 --
@@ -63,8 +60,6 @@ INSERT INTO public.bacheca VALUES ('TEMPO_LIBERO', 'Bacheca Tempo Libero', 'mari
 
 INSERT INTO public.statotodo VALUES ('NON_COMPLETATO');
 INSERT INTO public.statotodo VALUES ('COMPLETATO');
-INSERT INTO public.statotodo VALUES ('Completato');
-INSERT INTO public.statotodo VALUES ('NonCompletato');
 
 
 --
