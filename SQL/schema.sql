@@ -397,6 +397,71 @@ $$;
 
 ALTER FUNCTION public.esiste_condivisione(p_destinatario text, p_id_todo integer) OWNER TO postgres;
 
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: todo; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.todo (
+    id integer NOT NULL,
+    titolo character varying(100) NOT NULL,
+    data_scadenza character varying(20),
+    url text,
+    immagine bytea,
+    descrizione text,
+    colore character varying(7),
+    posizione integer,
+    stato character varying(30) NOT NULL,
+    proprietario character varying(100) NOT NULL,
+    tipo_bacheca character varying(30) NOT NULL,
+    CONSTRAINT stato_todo_check CHECK (((stato)::text = ANY ((ARRAY['COMPLETATO'::character varying, 'NON_COMPLETATO'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.todo OWNER TO postgres;
+
+--
+-- Name: get_todo_completati(text); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_todo_completati(p_username text) RETURNS SETOF public.todo
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  RETURN QUERY
+  SELECT *
+  FROM todo
+  WHERE stato = 'COMPLETATO'
+    AND proprietario = p_username;
+END;
+$$;
+
+
+ALTER FUNCTION public.get_todo_completati(p_username text) OWNER TO postgres;
+
+--
+-- Name: get_todo_scaduti(text); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_todo_scaduti(p_username text) RETURNS SETOF public.todo
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  RETURN QUERY
+  SELECT *
+  FROM todo
+  WHERE data_scadenza < CURRENT_DATE
+    AND stato != 'COMPLETATO'
+    AND proprietario = p_username;
+END;
+$$;
+
+
+ALTER FUNCTION public.get_todo_scaduti(p_username text) OWNER TO postgres;
+
 --
 -- Name: mostra_funzioni(); Type: FUNCTION; Schema: public; Owner: postgres
 --
@@ -554,10 +619,6 @@ $$;
 
 ALTER FUNCTION public.trova_todo_per_bacheca(p_proprietario text, p_tipo_bacheca text) OWNER TO postgres;
 
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
-
 --
 -- Name: bacheca; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -587,50 +648,6 @@ CREATE TABLE public.condivisione (
 ALTER TABLE public.condivisione OWNER TO postgres;
 
 --
--- Name: todo; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.todo (
-    id integer NOT NULL,
-    titolo character varying(100) NOT NULL,
-    data_scadenza character varying(20),
-    url text,
-    immagine bytea,
-    descrizione text,
-    colore character varying(7),
-    posizione integer,
-    stato character varying(30) NOT NULL,
-    proprietario character varying(100) NOT NULL,
-    tipo_bacheca character varying(30) NOT NULL,
-    CONSTRAINT stato_todo_check CHECK (((stato)::text = ANY ((ARRAY['COMPLETATO'::character varying, 'NON_COMPLETATO'::character varying])::text[])))
-);
-
-
-ALTER TABLE public.todo OWNER TO postgres;
-
---
--- Name: todo_completati; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW public.todo_completati AS
- SELECT id,
-    titolo,
-    data_scadenza,
-    url,
-    immagine,
-    descrizione,
-    colore,
-    posizione,
-    stato,
-    proprietario,
-    tipo_bacheca
-   FROM public.todo
-  WHERE ((stato)::text = 'COMPLETATO'::text);
-
-
-ALTER VIEW public.todo_completati OWNER TO postgres;
-
---
 -- Name: todo_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -651,28 +668,6 @@ ALTER SEQUENCE public.todo_id_seq OWNER TO postgres;
 
 ALTER SEQUENCE public.todo_id_seq OWNED BY public.todo.id;
 
-
---
--- Name: todo_scaduti; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW public.todo_scaduti AS
- SELECT id,
-    titolo,
-    data_scadenza,
-    url,
-    immagine,
-    descrizione,
-    colore,
-    posizione,
-    stato,
-    proprietario,
-    tipo_bacheca
-   FROM public.todo
-  WHERE ((data_scadenza IS NOT NULL) AND (to_date((data_scadenza)::text, 'YYYY-MM-DD'::text) < CURRENT_DATE) AND ((stato)::text = 'NON_COMPLETATO'::text));
-
-
-ALTER VIEW public.todo_scaduti OWNER TO postgres;
 
 --
 -- Name: utente; Type: TABLE; Schema: public; Owner: postgres

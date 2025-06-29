@@ -18,15 +18,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Data for Name: tipobacheca; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO public.tipobacheca VALUES ('UNIVERSITA');
-INSERT INTO public.tipobacheca VALUES ('LAVORO');
-INSERT INTO public.tipobacheca VALUES ('TEMPO_LIBERO');
-
-
---
 -- Data for Name: utente; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -52,14 +43,6 @@ INSERT INTO public.bacheca VALUES ('TEMPO_LIBERO', 'Bacheca tempo libero di pipp
 INSERT INTO public.bacheca VALUES ('UNIVERSITA', 'Bacheca Universit…', 'mario');
 INSERT INTO public.bacheca VALUES ('LAVORO', 'Bacheca Lavoro', 'mario');
 INSERT INTO public.bacheca VALUES ('TEMPO_LIBERO', 'Bacheca Tempo Libero', 'mario');
-
-
---
--- Data for Name: statotodo; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO public.statotodo VALUES ('NON_COMPLETATO');
-INSERT INTO public.statotodo VALUES ('COMPLETATO');
 
 
 --
