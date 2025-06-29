@@ -1,7 +1,6 @@
 package main;
 
 import gui.MainFrame;
-import dao.InitDAO;
 
 import javax.swing.*;
 
@@ -25,7 +24,7 @@ public class Main {
      * @param args eventuali argomenti da linea di comando (non usati)
      */
     public static void main(String[] args) {
-        InitDAO.inserisciTipiEStati();
+        // InitDAO.inserisciTipiEStati(); non mi serve più
 
         // Avvia l'interfaccia grafica sul thread corretto di Swing
         SwingUtilities.invokeLater(MainFrame::new);

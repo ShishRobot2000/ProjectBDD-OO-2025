@@ -214,14 +214,21 @@ ALTER FUNCTION public.check_bacheche_standard() OWNER TO postgres;
 
 CREATE FUNCTION public.check_colore_todo() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
+    AS $_$
 BEGIN
-  IF LEFT(NEW.colore, 1) = '#' THEN
-    RAISE EXCEPTION 'Il colore non pu• iniziare con #. Valore ricevuto: %', NEW.colore;
-  END IF;
-  RETURN NEW;
+    -- Non deve iniziare con #
+    IF LEFT(NEW.colore, 1) = '#' THEN
+        RAISE EXCEPTION 'Il colore non pu• iniziare con #. Valore ricevuto: %', NEW.colore;
+    END IF;
+
+    -- Deve essere lungo 6 caratteri ed esadecimale
+    IF NEW.colore !~ '^[0-9A-Fa-f]{6}$' THEN
+        RAISE EXCEPTION 'Colore non valido: deve essere un codice esadecimale di 6 cifre. Valore ricevuto: %', NEW.colore;
+    END IF;
+
+    RETURN NEW;
 END;
-$$;
+$_$;
 
 
 ALTER FUNCTION public.check_colore_todo() OWNER TO postgres;
@@ -234,14 +241,18 @@ CREATE FUNCTION public.condividi_todo(p_destinatario text, p_id_todo integer) RE
     LANGUAGE plpgsql
     AS $$
 DECLARE
-  v_count INTEGER;
+  v_proprietario text;
 BEGIN
-  SELECT COUNT(*) INTO v_count
+  SELECT proprietario INTO v_proprietario
   FROM todo
   WHERE id = p_id_todo;
 
-  IF v_count = 0 THEN
+  IF NOT FOUND THEN
     RETURN FALSE;
+  END IF;
+
+  IF v_proprietario = p_destinatario THEN
+    RETURN FALSE; -- blocca condivisione con s‚ stessi
   END IF;
 
   INSERT INTO condivisione (username_utente, id_todo, stato)
@@ -598,6 +609,28 @@ CREATE TABLE public.todo (
 ALTER TABLE public.todo OWNER TO postgres;
 
 --
+-- Name: todo_completati; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.todo_completati AS
+ SELECT id,
+    titolo,
+    data_scadenza,
+    url,
+    immagine,
+    descrizione,
+    colore,
+    posizione,
+    stato,
+    proprietario,
+    tipo_bacheca
+   FROM public.todo
+  WHERE ((stato)::text = 'COMPLETATO'::text);
+
+
+ALTER VIEW public.todo_completati OWNER TO postgres;
+
+--
 -- Name: todo_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -618,6 +651,28 @@ ALTER SEQUENCE public.todo_id_seq OWNER TO postgres;
 
 ALTER SEQUENCE public.todo_id_seq OWNED BY public.todo.id;
 
+
+--
+-- Name: todo_scaduti; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.todo_scaduti AS
+ SELECT id,
+    titolo,
+    data_scadenza,
+    url,
+    immagine,
+    descrizione,
+    colore,
+    posizione,
+    stato,
+    proprietario,
+    tipo_bacheca
+   FROM public.todo
+  WHERE ((data_scadenza IS NOT NULL) AND (to_date((data_scadenza)::text, 'YYYY-MM-DD'::text) < CURRENT_DATE) AND ((stato)::text = 'NON_COMPLETATO'::text));
+
+
+ALTER VIEW public.todo_scaduti OWNER TO postgres;
 
 --
 -- Name: utente; Type: TABLE; Schema: public; Owner: postgres
