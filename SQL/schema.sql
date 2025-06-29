@@ -568,22 +568,12 @@ CREATE TABLE public.condivisione (
     username_utente character varying(100) NOT NULL,
     id_todo integer NOT NULL,
     stato character varying(20) DEFAULT 'PENDING'::character varying NOT NULL,
+    CONSTRAINT check_stato_condivisione CHECK (((stato)::text = ANY ((ARRAY['PENDING'::character varying, 'ACCEPTED'::character varying])::text[]))),
     CONSTRAINT condivisione_stato_check CHECK (((stato)::text = ANY ((ARRAY['PENDING'::character varying, 'ACCEPTED'::character varying])::text[])))
 );
 
 
 ALTER TABLE public.condivisione OWNER TO postgres;
-
---
--- Name: statotodo; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.statotodo (
-    nome character varying(30) NOT NULL
-);
-
-
-ALTER TABLE public.statotodo OWNER TO postgres;
 
 --
 -- Name: todo; Type: TABLE; Schema: public; Owner: postgres
@@ -685,14 +675,6 @@ ALTER TABLE ONLY public.condivisione
 
 
 --
--- Name: statotodo statotodo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.statotodo
-    ADD CONSTRAINT statotodo_pkey PRIMARY KEY (nome);
-
-
---
 -- Name: todo todo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -766,14 +748,6 @@ ALTER TABLE ONLY public.condivisione
 
 ALTER TABLE ONLY public.todo
     ADD CONSTRAINT todo_proprietario_tipo_bacheca_fkey FOREIGN KEY (proprietario, tipo_bacheca) REFERENCES public.bacheca(proprietario, tipo);
-
-
---
--- Name: todo todo_stato_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.todo
-    ADD CONSTRAINT todo_stato_fkey FOREIGN KEY (stato) REFERENCES public.statotodo(nome);
 
 
 --
