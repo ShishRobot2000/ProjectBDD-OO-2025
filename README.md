@@ -21,6 +21,9 @@ Il progetto supporta multiutenza, autenticazione con login/password univoche e g
 [Terzo Homework](Java/Documentazione/TerzoHomework/)  
 [Javadoc](Java/Documentazione/Javadoc/)
 
+📄 Documentazione ufficiale BDD:   
+[Documentazione](SQL/Documentazione/) 
+
 ---
 
 ## 👨‍💻 Autori
