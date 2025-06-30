@@ -55,10 +55,10 @@ $$;
 ALTER FUNCTION public.aggiorna_stato_condivisione(p_destinatario text, p_id_todo integer, p_nuovo_stato text) OWNER TO postgres;
 
 --
--- Name: aggiorna_todo(integer, text, text, text, text, text, text, bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: aggiorna_todo(integer, text, text, text, text, text, text, bytea); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.aggiorna_todo(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_posizione integer) RETURNS boolean
+CREATE FUNCTION public.aggiorna_todo(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea) RETURNS boolean
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -69,8 +69,7 @@ BEGIN
       colore = p_colore,
       stato = p_stato,
       url = p_url,
-      immagine = p_immagine,
-      posizione = p_posizione
+      immagine = p_immagine
   WHERE id = p_id;
 
   RETURN FOUND;
@@ -78,13 +77,13 @@ END;
 $$;
 
 
-ALTER FUNCTION public.aggiorna_todo(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_posizione integer) OWNER TO postgres;
+ALTER FUNCTION public.aggiorna_todo(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea) OWNER TO postgres;
 
 --
--- Name: aggiorna_todo_parziale(integer, text, text, text, text, text, text, bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: aggiorna_todo_parziale(integer, text, text, text, text, text, text, bytea); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_posizione integer) RETURNS boolean
+CREATE FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea) RETURNS boolean
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -126,14 +125,8 @@ BEGIN
         v_sep := ', ';
     END IF;
 
-    IF p_posizione IS NOT NULL THEN
-        v_sql := v_sql || v_sep || 'posizione = ' || p_posizione;
-        v_sep := ', ';
-    END IF;
-
     IF v_sep = '' THEN
-        -- Nessun campo da aggiornare
-        RETURN FALSE;
+        RETURN FALSE; -- Nessun campo aggiornato
     END IF;
 
     v_sql := v_sql || ' WHERE id = ' || p_id;
@@ -144,7 +137,7 @@ END;
 $$;
 
 
-ALTER FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea, p_posizione integer) OWNER TO postgres;
+ALTER FUNCTION public.aggiorna_todo_parziale(p_id integer, p_titolo text, p_descrizione text, p_data_scadenza text, p_colore text, p_stato text, p_url text, p_immagine bytea) OWNER TO postgres;
 
 --
 -- Name: cancella_immagine_todo(integer); Type: FUNCTION; Schema: public; Owner: postgres
@@ -397,45 +390,29 @@ $$;
 
 ALTER FUNCTION public.esiste_condivisione(p_destinatario text, p_id_todo integer) OWNER TO postgres;
 
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
-
---
--- Name: todo; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.todo (
-    id integer NOT NULL,
-    titolo character varying(100) NOT NULL,
-    data_scadenza character varying(20),
-    url text,
-    immagine bytea,
-    descrizione text,
-    colore character varying(7),
-    posizione integer,
-    stato character varying(30) NOT NULL,
-    proprietario character varying(100) NOT NULL,
-    tipo_bacheca character varying(30) NOT NULL,
-    CONSTRAINT stato_todo_check CHECK (((stato)::text = ANY ((ARRAY['COMPLETATO'::character varying, 'NON_COMPLETATO'::character varying])::text[])))
-);
-
-
-ALTER TABLE public.todo OWNER TO postgres;
-
 --
 -- Name: get_todo_completati(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.get_todo_completati(p_username text) RETURNS SETOF public.todo
+CREATE FUNCTION public.get_todo_completati(p_username text) RETURNS TABLE(id integer, titolo text, descrizione text, data_scadenza text, colore text, stato text, url text, posizione integer, proprietario text, tipo_bacheca text)
     LANGUAGE plpgsql
     AS $$
 BEGIN
   RETURN QUERY
-  SELECT *
-  FROM todo
-  WHERE stato = 'COMPLETATO'
-    AND proprietario = p_username;
+  SELECT
+    v.id,
+    v.titolo::text,
+    v.descrizione::text,
+    v.data_scadenza::text,
+    v.colore::text,
+    v.stato::text,
+    v.url::text,
+    v.posizione,
+    v.proprietario::text,
+    v.tipo_bacheca::text
+  FROM vista_todo_senza_immagine v
+  WHERE v.stato = 'COMPLETATO'
+    AND v.proprietario = p_username;
 END;
 $$;
 
@@ -446,16 +423,26 @@ ALTER FUNCTION public.get_todo_completati(p_username text) OWNER TO postgres;
 -- Name: get_todo_scaduti(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.get_todo_scaduti(p_username text) RETURNS SETOF public.todo
+CREATE FUNCTION public.get_todo_scaduti(p_username text) RETURNS TABLE(id integer, titolo text, descrizione text, data_scadenza text, colore text, stato text, url text, posizione integer, proprietario text, tipo_bacheca text)
     LANGUAGE plpgsql
     AS $$
 BEGIN
   RETURN QUERY
-  SELECT *
-  FROM todo
-  WHERE data_scadenza < CURRENT_DATE
-    AND stato != 'COMPLETATO'
-    AND proprietario = p_username;
+  SELECT
+    v.id,
+    v.titolo::text,
+    v.descrizione::text,
+    v.data_scadenza::text,
+    v.colore::text,
+    v.stato::text,
+    v.url::text,
+    v.posizione,
+    v.proprietario::text,
+    v.tipo_bacheca::text
+  FROM vista_todo_senza_immagine v
+  WHERE v.data_scadenza::date < CURRENT_DATE
+    AND v.stato != 'COMPLETATO'
+    AND v.proprietario = p_username;
 END;
 $$;
 
@@ -619,6 +606,10 @@ $$;
 
 ALTER FUNCTION public.trova_todo_per_bacheca(p_proprietario text, p_tipo_bacheca text) OWNER TO postgres;
 
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
 --
 -- Name: bacheca; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -646,6 +637,28 @@ CREATE TABLE public.condivisione (
 
 
 ALTER TABLE public.condivisione OWNER TO postgres;
+
+--
+-- Name: todo; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.todo (
+    id integer NOT NULL,
+    titolo character varying(100) NOT NULL,
+    data_scadenza character varying(20),
+    url text,
+    immagine bytea,
+    descrizione text,
+    colore character varying(7),
+    posizione integer,
+    stato character varying(30) NOT NULL,
+    proprietario character varying(100) NOT NULL,
+    tipo_bacheca character varying(30) NOT NULL,
+    CONSTRAINT stato_todo_check CHECK (((stato)::text = ANY ((ARRAY['COMPLETATO'::character varying, 'NON_COMPLETATO'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.todo OWNER TO postgres;
 
 --
 -- Name: todo_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres

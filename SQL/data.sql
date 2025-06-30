@@ -25,6 +25,7 @@ INSERT INTO public.utente VALUES ('admin', 'adminpass');
 INSERT INTO public.utente VALUES ('pluto', 'plutopass');
 INSERT INTO public.utente VALUES ('pippo', 'pippopass');
 INSERT INTO public.utente VALUES ('mario', '1234');
+INSERT INTO public.utente VALUES ('gennaro', '12');
 
 
 --
@@ -43,6 +44,9 @@ INSERT INTO public.bacheca VALUES ('TEMPO_LIBERO', 'Bacheca tempo libero di pipp
 INSERT INTO public.bacheca VALUES ('UNIVERSITA', 'Bacheca Universit…', 'mario');
 INSERT INTO public.bacheca VALUES ('LAVORO', 'Bacheca Lavoro', 'mario');
 INSERT INTO public.bacheca VALUES ('TEMPO_LIBERO', 'Bacheca Tempo Libero', 'mario');
+INSERT INTO public.bacheca VALUES ('UNIVERSITA', 'Bacheca Universit…', 'gennaro');
+INSERT INTO public.bacheca VALUES ('LAVORO', 'Bacheca Lavoro', 'gennaro');
+INSERT INTO public.bacheca VALUES ('TEMPO_LIBERO', 'Bacheca Tempo Libero', 'gennaro');
 
 
 --
@@ -53,6 +57,7 @@ INSERT INTO public.todo VALUES (24, 'Preparare esame SQL', '2025-07-01', 'https:
 INSERT INTO public.todo VALUES (3, 'Prenotare vacanza', '2025-07-10', 'ryanair.com', NULL, 'Controllare voli e hotel', '23CCFF', 8, 'COMPLETATO', 'admin', 'TEMPO_LIBERO');
 INSERT INTO public.todo VALUES (25, 'Mangiare da Zio Tom', '2025-09-22', '', NULL, 'Panino Salsiccia e patatine', 'FFFFFF', 2, 'NON_COMPLETATO', 'admin', 'TEMPO_LIBERO');
 INSERT INTO public.todo VALUES (27, 'andare al mcdonald', '2025-09-23', NULL, NULL, 'mangiare un big mac', 'FFFFFF', 1, 'NON_COMPLETATO', 'admin', 'TEMPO_LIBERO');
+INSERT INTO public.todo VALUES (32, 'aa', '2025-05-25', NULL, NULL, 'a', 'FF00AA', 1, 'NON_COMPLETATO', 'gennaro', 'UNIVERSITA');
 INSERT INTO public.todo VALUES (7, 'Tesi triennale', '2025-07-15', NULL, NULL, 'Scrivere introduzione e metodi', 'C0C0C0', 1, 'NON_COMPLETATO', 'pluto', 'UNIVERSITA');
 INSERT INTO public.todo VALUES (8, 'Stage azienda', '2025-07-20', NULL, NULL, 'Contattare referente', '008000', 1, 'NON_COMPLETATO', 'pluto', 'LAVORO');
 INSERT INTO public.todo VALUES (9, 'Trekking domenica', '2025-06-29', NULL, NULL, 'Preparare zaino', 'FFD700', 1, 'COMPLETATO', 'pluto', 'TEMPO_LIBERO');
@@ -76,7 +81,7 @@ INSERT INTO public.condivisione VALUES ('admin', 12, 'PENDING');
 -- Name: todo_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.todo_id_seq', 27, true);
+SELECT pg_catalog.setval('public.todo_id_seq', 32, true);
 
 
 --
